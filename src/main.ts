@@ -9,11 +9,13 @@ import { ToastContainerComponent } from './app/components/shared/toast-container
   standalone: true,
   imports: [RouterOutlet, ToastContainerComponent],
   template: `
-    <div class="app-shell">
+    <div class="app-root-shell">
       @if (isNavigating()) {
         <div class="route-loader"></div>
       }
-      <router-outlet class="page-fade"></router-outlet>
+      <main class="main-viewport">
+        <router-outlet></router-outlet>
+      </main>
       <app-toast-container></app-toast-container>
     </div>
   `,
@@ -28,7 +30,8 @@ export class App {
       }
 
       if (event instanceof NavigationEnd || event instanceof NavigationCancel || event instanceof NavigationError) {
-        setTimeout(() => this.isNavigating.set(false), 150);
+        // Minimum delay to show the loader and avoid flicker
+        setTimeout(() => this.isNavigating.set(false), 300);
       }
     });
   }

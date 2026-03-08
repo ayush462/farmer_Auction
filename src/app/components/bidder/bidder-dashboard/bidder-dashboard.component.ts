@@ -10,649 +10,426 @@ import { AuthService } from '../../../services/auth.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="dashboard-container">
-      <nav class="navbar">
-        <div class="nav-logo">
-          <h1>🌾 Farm-Scheme</h1>
+    <div class="dashboard-page page-fade">
+      <header class="dashboard-nav">
+        <div class="container nav-content">
+          <div class="brand" routerLink="/">
+            <span class="app-icon">agriculture</span>
+            <span class="brand-name">Farm-Scheme</span>
+          </div>
+
+          <div class="nav-actions">
+            <div class="user-meta">
+              <span class="user-name">{{ authService.currentUser()?.name }}</span>
+              <span class="user-badge">Bidder</span>
+            </div>
+            <button (click)="logout()" class="btn btn-ghost btn-icon">
+              <span class="app-icon">logout</span>
+            </button>
+          </div>
         </div>
-        <div class="nav-user">
-          <span>{{ authService.currentUser()?.name }}</span>
-          <button (click)="logout()" class="logout-btn">Logout</button>
-        </div>
-      </nav>
+      </header>
 
-      <div class="content">
-        <div class="header">
-          <h1>Crop Marketplace</h1>
-          <p>Browse and bid on available crops</p>
-        </div>
+      <main class="dashboard-content container">
+        <header class="content-header">
+          <div>
+            <h1 class="page-title">Marketplace</h1>
+            <p class="text-muted">Discover and bid on the finest crop inventory.</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-secondary" (click)="loadCrops()">
+              <span class="app-icon">refresh</span>
+              Refresh
+            </button>
+          </div>
+        </header>
 
-        @if (successMessage()) {
-          <div class="alert alert-success">{{ successMessage() }}</div>
-        }
+        <section class="stats-overview">
+          <div class="stat-card card">
+            <span class="stat-label">Active Bids</span>
+            <span class="stat-value">{{ dashboardStats().activeBids }}</span>
+          </div>
+          <div class="stat-card card">
+            <span class="stat-label">Auctions Won</span>
+            <span class="stat-value">{{ dashboardStats().auctionsWon }}</span>
+          </div>
+          <div class="stat-card card">
+            <span class="stat-label">Total Spent</span>
+            <span class="stat-value">₹{{ dashboardStats().totalSpent }}</span>
+          </div>
+          <div class="stat-card card">
+            <span class="stat-label">Total Bids</span>
+            <span class="stat-value">{{ dashboardStats().totalBids }}</span>
+          </div>
+        </section>
 
-        @if (errorMessage()) {
-          <div class="alert alert-error">{{ errorMessage() }}</div>
-        }
-          <div class="stats-grid">
-
-  <div class="stat-card">
-    <h3>{{ dashboardStats().activeBids }}</h3>
-    <p>Active Bids</p>
-  </div>
-
-  <div class="stat-card">
-    <h3>{{ dashboardStats().totalBids }}</h3>
-    <p>Total Bids</p>
-  </div>
-
-  <div class="stat-card">
-    <h3>{{ dashboardStats().auctionsWon }}</h3>
-    <p>Auctions Won</p>
-  </div>
-
-  <div class="stat-card">
-    <h3>₹{{ dashboardStats().totalSpent }}</h3>
-    <p>Total Spent</p>
-  </div>
-
-</div>
-
-        <div class="crops-grid">
+        <div class="marketplace-grid">
           @if (crops().length > 0) {
             @for (crop of crops(); track crop.id) {
-              <div class="crop-card">
-                <div class="card-header">
-                  <h3>{{ crop.cropName }}</h3>
-                  <span class="badge">{{ crop.cropType }}</span>
-                </div>
-
-                <div class="card-body">
-                  <div class="info-row">
-                    <span class="label">Base Price:</span>
-                    <span class="value">₹{{ crop.basePrice }} / Q</span>
+              <div class="crop-item card">
+                <div class="crop-header">
+                  <div class="crop-title-group">
+                    <h3 class="crop-name">{{ crop.cropName }}</h3>
+                    <span class="crop-type-badge">{{ crop.cropType }}</span>
                   </div>
-                  <div class="info-row highlight">
-                    <span class="label">Current Bid:</span>
-                    <span class="value price">₹{{ crop.currentBid }} / Q</span>
-                  </div>
-                 @if (crop.auctionStatus === 'LIVE') {
-
-<div class="auction-live">
-🟢 Auction Live
-</div>
-
-}
-@if (crop.auctionStatus === 'NOT_STARTED') {
-
-<div class="auction-pending">
-⏳ {{ crop.timeLeft || 'Auction not started yet' }}
-</div>
-
-}
-
-@if (crop.auctionStatus === 'LIVE') {
-
-<div class="auction-timer">
-⏳ {{ crop.timeLeft }}
-</div>
-
-}
-@if (crop.auctionStatus === 'COMPLETED' && crop.winnerName) {
-
-<div class="winner">
-🏆 Winner: {{ crop.winnerName }}
-</div>
-
-}
-                  <div class="info-row">
-                    <span class="label">Quantity:</span>
-                    <span class="value">{{ crop.quantity }} Quintals</span>
-                  </div>
-                  <div class="info-row">
-                    <span class="label">Farmer:</span>
-                    <span class="value">{{ crop.farmerName }}</span>
-                  </div>
-
-                 @if (selectedCrop() === crop.id && !crop.closed) {
-                    <div class="bid-input-section">
-                      <div class="form-group">
-                        <label>Your Bid Amount (per Quintal)</label>
-                        <input
-                          type="number"
-                          [(ngModel)]="bidAmount"
-                          placeholder="Enter amount"
-                          [min]="crop.currentBid + 1"
-                        />
-                      </div>
-                      <div class="bid-actions">
-                        <button (click)="selectedCrop.set(null)" class="btn btn-secondary">Cancel</button>
-                        <button (click)="confirmBid(crop)" class="btn btn-primary" [disabled]="loading()">
-                          @if (loading()) {
-                            <span class="spinner"></span>
-                          } @else {
-                            Confirm Bid
-                          }
-                        </button>
-                      </div>
-                    </div>
-                  } @else {
-                  @if (crop.auctionStatus === 'LIVE') {
-
-<button
- (click)="selectedCrop.set(crop.id)"
- class="btn btn-bid">
-Place Bid
-</button>
-
-}
-
-@if (crop.auctionStatus === 'COMPLETED') {
-
-<button class="btn btn-completed">
-Auction Completed
-</button>
-
-}
-
-@if (crop.auctionStatus === 'NOT_STARTED') {
-
-<button class="btn btn-pending">
-Waiting for Auction
-</button>
-
-}
-                  }
-                </div>
-
-                @if (crop.previousBids && crop.previousBids.length > 0) {
-                  <div class="previous-bids">
-                    <h4>Bid History</h4>
-                    @for (bid of crop.previousBids; track $index) {
-                      <div class="bid-item">
-                        <span>{{ bid.bidderName }}</span>
-                        <span>₹{{ bid.amount }}</span>
-                        <span class="time">{{ bid.time }}</span>
-                      </div>
+                  <div class="auction-status" [ngClass]="crop.auctionStatus?.toLowerCase()">
+                    @if (crop.auctionStatus === 'LIVE') {
+                      <span class="status-dot pulse"></span>
+                      Live: {{ crop.timeLeft }}
+                    } @else if (crop.auctionStatus === 'COMPLETED') {
+                      <span class="app-icon text-xs">check_circle</span>
+                      Ended
+                    } @else {
+                      <span class="app-icon text-xs">schedule</span>
+                      Upcoming
                     }
                   </div>
-                }
+                </div>
+
+                <div class="crop-body">
+                  <div class="price-section">
+                    <div class="price-box">
+                      <span class="price-label">Current Bid</span>
+                      <span class="price-value">₹{{ crop.currentBid }} <small>/Q</small></span>
+                    </div>
+                    <div class="price-box muted">
+                      <span class="price-label">Base Price</span>
+                      <span class="price-value">₹{{ crop.basePrice }}</span>
+                    </div>
+                  </div>
+
+                  <div class="details-list">
+                    <div class="detail-item">
+                      <span class="app-icon text-muted">inventory_2</span>
+                      <span>{{ crop.quantity }} Quintals available</span>
+                    </div>
+                    <div class="detail-item">
+                      <span class="app-icon text-muted">person</span>
+                      <span>Farmer: {{ crop.farmerName }}</span>
+                    </div>
+                  </div>
+
+                  @if (crop.auctionStatus === 'COMPLETED' && crop.winnerName) {
+                    <div class="winner-announcement">
+                      <span class="app-icon">emoji_events</span>
+                      <span>Winner: <strong>{{ crop.winnerName }}</strong></span>
+                    </div>
+                  }
+
+                  @if (selectedCrop() === crop.id && !crop.closed) {
+                    <div class="bid-action-area">
+                      <div class="field">
+                        <label class="text-xs font-semibold uppercase">Your Bid Amount</label>
+                        <div class="input-with-button">
+                          <input
+                            type="number"
+                            class="input"
+                            [(ngModel)]="bidAmount"
+                            placeholder="Enter amount..."
+                            [min]="crop.currentBid + 1"
+                          />
+                          <button (click)="confirmBid(crop)" class="btn btn-primary" [disabled]="loading()">
+                            Bid
+                          </button>
+                        </div>
+                      </div>
+                      <button (click)="selectedCrop.set(null)" class="btn btn-ghost btn-sm w-full mt-2">Cancel</button>
+                    </div>
+                  } @else {
+                    <div class="action-footer">
+                      @if (crop.auctionStatus === 'LIVE') {
+                        <button (click)="selectedCrop.set(crop.id)" class="btn btn-primary w-full">
+                          Place a Bid
+                        </button>
+                      } @else if (crop.auctionStatus === 'COMPLETED') {
+                        <button class="btn btn-secondary w-full" disabled>
+                          Auction Finished
+                        </button>
+                      } @else {
+                        <button class="btn btn-secondary w-full" disabled>
+                          Coming Soon
+                        </button>
+                      }
+                    </div>
+                  }
+                </div>
               </div>
             }
           } @else {
-            <div class="empty-state">
-              <span class="empty-icon">🌾</span>
-              <h3>No crops available</h3>
-              <p>Check back later for new crops to bid on</p>
+            <div class="empty-state text-center py-12">
+              <span class="app-icon text-4xl text-muted mb-4">agriculture</span>
+              <h3 class="text-lg font-semibold">No crops available</h3>
+              <p class="text-muted">There are currently no active auctions in the marketplace.</p>
             </div>
           }
         </div>
-      </div>
+      </main>
     </div>
   `,
   styles: [`
-    .dashboard-container {
+    .dashboard-page {
       min-height: 100vh;
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      background-color: #fafafa;
     }
 
-    .navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1.5rem 3rem;
-      background: rgba(15, 23, 42, 0.8);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(16, 185, 129, 0.2);
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    .dashboard-nav {
+      height: 64px;
+      background-color: var(--background);
+      border-bottom: 1px solid var(--border);
       position: sticky;
       top: 0;
-      z-index: 100;
+      z-index: 50;
     }
-      .auction-live{
- color:#22c55e;
- font-weight:700;
- margin-top:6px;
-}
 
-.auction-timer{
- color:#10b981;
- font-weight:700;
- margin-top:6px;
-}
- .auction-pending{
- color:#facc15;
- font-weight:700;
- margin-top:6px;
-}
+    .nav-content {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
 
-    .nav-logo h1 {
-      font-size: 1.5rem;
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      cursor: pointer;
+    }
+
+    .brand-name {
       font-weight: 700;
-      background: linear-gradient(135deg, #10b981, #34d399);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      font-size: 1rem;
+      letter-spacing: -0.025em;
     }
 
-    .nav-user {
+    .nav-actions {
       display: flex;
       align-items: center;
       gap: 1rem;
-      color: #cbd5e1;
-      font-weight: 500;
     }
 
-    .logout-btn {
-      padding: 0.75rem 1.5rem;
-      background: rgba(239, 68, 68, 0.1);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      border-radius: 12px;
-      color: #fca5a5;
+    .user-meta {
+      display: flex;
+      flex-direction: column;
+      text-align: right;
+    }
+
+    .user-name {
+      font-size: 0.875rem;
       font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
     }
 
-    .logout-btn:hover {
-      background: rgba(239, 68, 68, 0.2);
-      transform: translateY(-2px);
+    .user-badge {
+      font-size: 0.75rem;
+      color: var(--muted-foreground);
     }
 
-    .content {
-      padding: 2rem 3rem;
+    .dashboard-content {
+      padding-top: 2.5rem;
+      padding-bottom: 4rem;
     }
 
-    .header {
-      margin-bottom: 2rem;
-    }
-
-    .header h1 {
-      color: #fff;
-      font-size: 2rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .header p {
-      color: #94a3b8;
-    }
-
-    .alert {
-      padding: 1rem;
-      border-radius: 12px;
-      margin-bottom: 1.5rem;
-      animation: slideIn 0.3s ease-out;
-    }
-
-    .alert-success {
-      background: rgba(16, 185, 129, 0.1);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      color: #6ee7b7;
-    }
-
-    .alert-error {
-      background: rgba(239, 68, 68, 0.1);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      color: #fca5a5;
-    }
-
-    .crops-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-      gap: 2rem;
-    }
-      .stats-grid{
- display:grid;
- grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
- gap:20px;
- margin-bottom:30px;
-}
-
-.stat-card{
- background:linear-gradient(135deg,#10b981,#059669);
- padding:20px;
- border-radius:16px;
- text-align:center;
- color:white;
- box-shadow:0 8px 25px rgba(16,185,129,.4);
- transition:.3s;
-}
-
-.stat-card:hover{
- transform:translateY(-4px);
-}
-
-.stat-card h3{
- font-size:28px;
- margin-bottom:5px;
- font-weight:700;
-}
-
-.stat-card p{
- opacity:.9;
- font-weight:500;
-}
-
-    .crop-card {
-      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(52, 211, 153, 0.05));
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      border-radius: 20px;
-      padding: 1.5rem;
-      transition: all 0.3s ease;
-      animation: fadeInUp 0.5s ease-out;
-    }
-
-    .crop-card:hover {
-      transform: translateY(-5px);
-      border-color: #10b981;
-      box-shadow: 0 10px 40px rgba(16, 185, 129, 0.3);
-    }
-
-    .card-header {
+    .content-header {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.5rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid rgba(16, 185, 129, 0.2);
+      align-items: flex-end;
+      margin-bottom: 2.5rem;
     }
 
-    .card-header h3 {
-      color: #fff;
-      font-size: 1.5rem;
+    .page-title {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.05em;
     }
 
-    .badge {
-      padding: 0.35rem 0.85rem;
-      background: rgba(16, 185, 129, 0.2);
-      color: #10b981;
-      border-radius: 12px;
+    .stats-overview {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 3rem;
+    }
+
+    .stat-card {
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .stat-label {
       font-size: 0.75rem;
       font-weight: 600;
+      color: var(--muted-foreground);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .marketplace-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .crop-item {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .crop-header {
+      padding: 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .crop-title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .crop-name {
+      font-size: 1.125rem;
+      font-weight: 700;
+    }
+
+    .crop-type-badge {
+      display: inline-flex;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--muted-foreground);
       text-transform: uppercase;
     }
 
-    .info-row {
+    .auction-status {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      padding: 0.75rem 0;
+      gap: 0.375rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.25rem 0.5rem;
+      border-radius: 999px;
+      background-color: var(--muted);
     }
 
-    .info-row.highlight {
-      background: rgba(16, 185, 129, 0.1);
-      padding: 1rem;
-      border-radius: 12px;
-      margin: 0.5rem 0;
+    .auction-status.live {
+      background-color: #f0fdf4;
+      color: #16a34a;
     }
 
-    .info-row .label {
-      color: #94a3b8;
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background-color: currentColor;
+    }
+
+    .pulse {
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.4; }
+      100% { opacity: 1; }
+    }
+
+    .crop-body {
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .price-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .price-box {
+      display: flex;
+      flex-direction: column;
+      gap: 0.125rem;
+    }
+
+    .price-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--muted-foreground);
+      text-transform: uppercase;
+    }
+
+    .price-value {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .price-value small {
+      font-size: 0.75rem;
       font-weight: 500;
+      color: var(--muted-foreground);
     }
 
-    .info-row .value {
-      color: #cbd5e1;
-      font-weight: 600;
-    }
-
-    .info-row .value.price {
-      color: #10b981;
-      font-size: 1.5rem;
-    }
-
-    .bid-input-section {
-      margin-top: 1.5rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid rgba(16, 185, 129, 0.2);
-      animation: slideDown 0.3s ease-out;
-    }
-
-    .form-group {
-      margin-bottom: 1rem;
-    }
-
-    .form-group label {
-      display: block;
-      color: #10b981;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-      font-size: 0.875rem;
-    }
-
-    .form-group input {
-      width: 100%;
-      padding: 1rem;
-      background: rgba(15, 23, 42, 0.5);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      border-radius: 12px;
-      color: white;
-      font-size: 1rem;
-      transition: all 0.3s ease;
-    }
-
-    .form-group input:focus {
-      outline: none;
-      border-color: #10b981;
-      box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
-    }
-
-    .bid-actions {
+    .details-list {
       display: flex;
-      gap: 0.75rem;
-    }
-
-    .btn {
-      padding: 0.875rem 1.5rem;
-      border: none;
-      border-radius: 12px;
-      font-weight: 600;
-      font-size: 0.875rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      flex-direction: column;
       gap: 0.5rem;
     }
 
-    .btn-primary {
-      flex: 1;
-      background: linear-gradient(135deg, #10b981, #059669);
-      color: white;
-      box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
-    }
-
-    .btn-primary:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 30px rgba(16, 185, 129, 0.6);
-    }
-
-    .btn-secondary {
-      flex: 1;
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
-      border: 2px solid #10b981;
-    }
-
-    .btn-secondary:hover {
-      background: rgba(16, 185, 129, 0.2);
-    }
-
-    .btn-bid {
-      width: 100%;
-      margin-top: 1rem;
-      background: linear-gradient(135deg, #10b981, #059669);
-      color: white;
-      box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
-    }
-
-    .btn-bid:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 30px rgba(16, 185, 129, 0.6);
-    }
-
-    .btn-primary:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-
-    .spinner {
-      width: 16px;
-      height: 16px;
-      border: 2px solid rgba(255, 255, 255, 0.3);
-      border-top-color: white;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-
-    .previous-bids {
-      margin-top: 1.5rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid rgba(16, 185, 129, 0.2);
-    }
-
-    .previous-bids h4 {
-      color: #10b981;
-      font-size: 0.875rem;
-      margin-bottom: 0.75rem;
-    }
-
-    .bid-item {
+    .detail-item {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      padding: 0.5rem;
+      gap: 0.5rem;
       font-size: 0.875rem;
-      color: #94a3b8;
+      color: var(--foreground);
     }
 
-    .bid-item .time {
-      color: #64748b;
-      font-size: 0.75rem;
+    .winner-announcement {
+      background-color: #fff9db;
+      padding: 0.75rem;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
     }
 
-    .empty-state {
-      grid-column: 1 / -1;
-      text-align: center;
-      padding: 4rem 2rem;
+    .input-with-button {
+      display: flex;
+      gap: 0.5rem;
     }
 
-    .empty-icon {
-      font-size: 4rem;
-      display: block;
-      margin-bottom: 1rem;
+    .input-with-button .input {
+      flex: 1;
     }
 
-    .empty-state h3 {
-      color: #cbd5e1;
-      margin-bottom: 0.5rem;
-    }
+    .text-muted { color: var(--muted-foreground); }
+    .text-xs { font-size: 0.75rem; }
+    .text-lg { font-size: 1.125rem; }
+    .text-4xl { font-size: 2.25rem; }
+    .font-semibold { font-weight: 600; }
+    .py-12 { padding-top: 3rem; padding-bottom: 3rem; }
+    .mb-4 { margin-bottom: 1rem; }
+    .mt-2 { margin-top: 0.5rem; }
+    .w-full { width: 100%; }
 
-    .empty-state p {
-      color: #94a3b8;
-    }
-
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateX(-20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-
-    @keyframes slideDown {
-      from {
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-      .winner{
-
-margin-top:12px;
-
-padding:12px;
-
-border-radius:12px;
-
-background:linear-gradient(135deg,#22c55e,#16a34a);
-
-color:white;
-
-font-weight:700;
-
-text-align:center;
-
-box-shadow:0 6px 20px rgba(34,197,94,.5);
-
-animation:winnerGlow 2s infinite;
-
-}
-
-@keyframes winnerGlow{
-
-0%{box-shadow:0 0 0 0 rgba(34,197,94,.7)}
-
-70%{box-shadow:0 0 0 14px rgba(34,197,94,0)}
-
-100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}
-
-}
-.btn-completed{
-
-width:100%;
-
-margin-top:10px;
-
-background:linear-gradient(135deg,#64748b,#475569);
-
-color:white;
-
-font-weight:700;
-
-padding:12px;
-
-border-radius:12px;
-
-}
-
-.btn-pending{
-
-width:100%;
-
-margin-top:10px;
-
-background:linear-gradient(135deg,#facc15,#eab308);
-
-color:black;
-
-font-weight:700;
-
-padding:12px;
-
-border-radius:12px;
-
-}
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
+    @media (max-width: 768px) {
+      .stats-overview { grid-template-columns: 1fr 1fr; }
+      .marketplace-grid { grid-template-columns: 1fr; }
+      .content-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
     }
   `]
 })

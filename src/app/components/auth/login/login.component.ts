@@ -10,209 +10,127 @@ import { ToastService } from '../../../services/toast.service';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   template: `
-    <div class="auth-shell page-fade">
+    <div class="auth-page page-fade">
       <div class="auth-card card">
-        <div class="auth-header">
-          <div class="auth-logo">
-            <div class="logo-mark">
-              <span class="app-icon app-icon--lg">spa</span>
-            </div>
-            <div class="logo-text">
-              <span class="logo-title">Farm-Scheme</span>
-              <span class="logo-subtitle">Secure sign in</span>
-            </div>
-          </div>
-          <div>
-            <h1>Welcome back</h1>
-            <p>Sign in to access your farmer, bidder, or admin workspace.</p>
-          </div>
+        <div class="auth-header text-center">
+          <div class="brand-icon app-icon">agriculture</div>
+          <h1>Welcome back</h1>
+          <p class="text-muted">Enter your credentials to access your account</p>
         </div>
 
         <form (ngSubmit)="onSubmit()" class="auth-form">
           <div class="field">
-            <label>Email address</label>
+            <label>Email</label>
             <input
               class="input"
               type="email"
               [(ngModel)]="email"
               name="email"
-              placeholder="you@example.com"
+              placeholder="name&#64;example.com"
               required
             />
           </div>
 
           <div class="field">
-            <label>Password</label>
+            <div class="flex justify-between items-center">
+              <label>Password</label>
+              <a href="#" class="text-xs text-muted hover:text-foreground">Forgot password?</a>
+            </div>
             <input
               class="input"
               type="password"
               [(ngModel)]="password"
               name="password"
-              placeholder="Enter your password"
+              placeholder="••••••••"
               required
             />
           </div>
 
-          <div class="form-meta">
-            <a href="#" class="link subtle">Forgot password?</a>
-          </div>
-
-          <button type="submit" class="btn btn-primary full-width" [disabled]="loading()">
+          <button type="submit" class="btn btn-primary w-full" [disabled]="loading()">
             @if (loading()) {
-              <span class="btn-spinner"></span>
               Signing in...
             } @else {
-              <span class="app-icon">login</span>
               Sign in
             }
           </button>
         </form>
 
-        <div class="auth-footer">
-          <p>
-            New to the platform?
-            <a routerLink="/register" class="link">Create an account</a>
+        <div class="auth-footer text-center">
+          <p class="text-muted text-sm">
+            Don't have an account?
+            <a routerLink="/register" class="font-medium text-foreground hover:underline">Create an account</a>
           </p>
-          <p class="hint">Use the same credentials across web and mobile dashboards.</p>
         </div>
       </div>
     </div>
   `,
   styles: [`
-    .auth-shell {
-      min-height: calc(100vh - 3rem);
+    .auth-page {
+      min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 2.5rem 1.5rem;
+      background-color: var(--muted);
+      padding: 1.5rem;
     }
 
     .auth-card {
       width: 100%;
-      max-width: 440px;
-      padding: 2.25rem 2.4rem;
+      max-width: 400px;
+      padding: 2.5rem;
       display: flex;
       flex-direction: column;
-      gap: 1.5rem;
+      gap: 2rem;
+      background-color: var(--background);
     }
 
     .auth-header {
       display: flex;
       flex-direction: column;
-      gap: 1.1rem;
-    }
-
-    .auth-logo {
-      display: flex;
+      gap: 0.5rem;
       align-items: center;
-      gap: 0.75rem;
     }
 
-    .logo-mark {
-      width: 38px;
-      height: 38px;
-      border-radius: 999px;
-      background: radial-gradient(circle at 15% 0, #bbf7d0 0, #22c55e 40%, #15803d 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #ffffff;
-      box-shadow: 0 10px 30px rgba(22, 163, 74, 0.4);
-    }
-
-    .logo-text {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .logo-title {
-      font-size: 1.02rem;
-      font-weight: 600;
-      letter-spacing: -0.01em;
-      color: var(--text-main);
-    }
-
-    .logo-subtitle {
-      font-size: 0.8rem;
-      color: var(--text-soft);
+    .brand-icon {
+      font-size: 32px;
+      margin-bottom: 0.5rem;
     }
 
     .auth-header h1 {
-      font-size: 1.6rem;
-      font-weight: 600;
-      letter-spacing: -0.02em;
-      color: var(--text-main);
-    }
-
-    .auth-header p {
-      font-size: 0.9rem;
-      color: var(--text-muted);
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
     }
 
     .auth-form {
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      gap: 1.25rem;
     }
 
     .field {
       display: flex;
       flex-direction: column;
-      gap: 0.4rem;
+      gap: 0.5rem;
     }
 
     .field label {
-      font-size: 0.86rem;
-      font-weight: 500;
-      color: var(--text-muted);
-    }
-
-    .form-meta {
-      display: flex;
-      justify-content: flex-end;
-      margin-bottom: 0.25rem;
-    }
-
-    .link {
-      font-size: 0.86rem;
-      color: var(--primary-strong);
-      text-decoration: none;
+      font-size: 0.875rem;
       font-weight: 500;
     }
 
-    .link.subtle {
-      color: var(--text-soft);
-    }
-
-    .link:hover {
-      text-decoration: underline;
-    }
-
-    .full-width {
-      width: 100%;
-      margin-top: 0.25rem;
-    }
-
-    .auth-footer {
-      margin-top: 0.75rem;
-      font-size: 0.86rem;
-      color: var(--text-soft);
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-      text-align: center;
-    }
-
-    .auth-footer .hint {
-      font-size: 0.8rem;
-    }
-
-    @media (max-width: 480px) {
-      .auth-card {
-        padding-inline: 1.5rem;
-      }
-    }
+    .text-center { text-align: center; }
+    .text-muted { color: var(--muted-foreground); }
+    .text-sm { font-size: 0.875rem; }
+    .text-xs { font-size: 0.75rem; }
+    .font-medium { font-weight: 500; }
+    .text-foreground { color: var(--foreground); }
+    .hover\:text-foreground:hover { color: var(--foreground); }
+    .hover\:underline:hover { text-decoration: underline; }
+    .w-full { width: 100%; }
+    .flex { display: flex; }
+    .justify-between { justify-content: space-between; }
+    .items-center { align-items: center; }
   `]
 })
 export class LoginComponent {

@@ -10,1020 +10,458 @@ import { AuthService } from '../../../services/auth.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="dashboard-container">
-      <nav class="navbar">
-        <div class="nav-logo">
-          <h1>🌾 Farm-Scheme Admin</h1>
-        </div>
-        <button (click)="logout()" class="logout-btn">Logout</button>
-      </nav>
-
-      <div class="content">
-        <div class="header">
-          <h1>Admin Dashboard</h1>
-          <p>Manage users, crops, and insurance claims</p>
+    <div class="dashboard-layout page-fade">
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <div class="brand">
+            <span class="app-icon">admin_panel_settings</span>
+            <span class="brand-name">Admin Portal</span>
+          </div>
         </div>
 
-        <div class="tabs">
-        <button
-  [class.active]="activeTab() === 'dashboard'"
-  (click)="loadDashboard()"
-  class="tab-btn"
->
-  Dashboard
-</button>
-          <button
-            [class.active]="activeTab() === 'users'"
-            (click)="loadUsers()"
-            class="tab-btn"
-          >
-            Users
-          </button>
-          <button
-            [class.active]="activeTab() === 'crops'"
-            (click)="loadCrops()"
-            class="tab-btn"
-          >
-            Crop Approvals
-          </button>
-          <button
-            [class.active]="activeTab() === 'bids'"
-            (click)="loadBids()"
-            class="tab-btn"
-          >
-            Bidding Management
-          </button>
-          <button
-  [class.active]="activeTab() === 'insurance'"
-  (click)="loadInsurance()"
-  class="tab-btn"
->
-  Pending Insurance Approvals
-</button>
-<button
-  [class.active]="activeTab() === 'claims'"
-  (click)="loadClaims()"
-  class="tab-btn"
->
-  Pending Claim Approvals
-</button>
+        <nav class="sidebar-nav">
+          <div class="nav-group">
+            <span class="nav-label">General</span>
+            <button class="nav-item" [class.active]="activeTab() === 'dashboard'" (click)="loadDashboard()">
+              <span class="app-icon">dashboard</span>
+              <span>Overview</span>
+            </button>
+            <button class="nav-item" [class.active]="activeTab() === 'users'" (click)="loadUsers()">
+              <span class="app-icon">group</span>
+              <span>User Directory</span>
+            </button>
+          </div>
 
-        </div>
+          <div class="nav-group">
+            <span class="nav-label">Marketplace</span>
+            <button class="nav-item" [class.active]="activeTab() === 'crops'" (click)="loadCrops()">
+              <span class="app-icon">inventory</span>
+              <span>Crop Approvals</span>
+            </button>
+            <button class="nav-item" [class.active]="activeTab() === 'bids'" (click)="loadBids()">
+              <span class="app-icon">gavel</span>
+              <span>Auctions</span>
+            </button>
+          </div>
 
-        @if (successMessage()) {
-          <div class="alert alert-success">{{ successMessage() }}</div>
-        }
-        @if (activeTab() === 'dashboard') {
+          <div class="nav-group">
+            <span class="nav-label">Insurance</span>
+            <button class="nav-item" [class.active]="activeTab() === 'insurance'" (click)="loadInsurance()">
+              <span class="app-icon">shield</span>
+              <span>Policies</span>
+            </button>
+            <button class="nav-item" [class.active]="activeTab() === 'claims'" (click)="loadClaims()">
+              <span class="app-icon">assignment</span>
+              <span>Claims</span>
+            </button>
+          </div>
+        </nav>
 
-<div class="dashboard-grid">
-
-<div class="stat-card farmers">
-<div class="icon">👨‍🌾</div>
-<div class="stat-info">
-<h3>Total Farmers</h3>
-<p>{{ adminDashboard()?.totalFarmers }}</p>
-</div>
-</div>
-
-<div class="stat-card bidders">
-<div class="icon">💰</div>
-<div class="stat-info">
-<h3>Total Bidders</h3>
-<p>{{ adminDashboard()?.totalBidders }}</p>
-</div>
-</div>
-
-<div class="stat-card crops">
-<div class="icon">🌾</div>
-<div class="stat-info">
-<h3>Total Crops</h3>
-<p>{{ adminDashboard()?.totalCrops }}</p>
-</div>
-</div>
-
-<div class="stat-card pending">
-<div class="icon">⏳</div>
-<div class="stat-info">
-<h3>Pending Crops</h3>
-<p>{{ adminDashboard()?.pendingCrops }}</p>
-</div>
-</div>
-
-<div class="stat-card auctions">
-<div class="icon">⚡</div>
-<div class="stat-info">
-<h3>Active Auctions</h3>
-<p>{{ adminDashboard()?.activeAuctions }}</p>
-</div>
-</div>
-
-<div class="stat-card insurance">
-<div class="icon">🛡</div>
-<div class="stat-info">
-<h3>Insurance Policies</h3>
-<p>{{ adminDashboard()?.insurancePolicies }}</p>
-</div>
-</div>
-
-<div class="stat-card claims">
-<div class="icon">📄</div>
-<div class="stat-info">
-<h3>Pending Claims</h3>
-<p>{{ adminDashboard()?.pendingClaims }}</p>
-</div>
-</div>
-
-</div>
-
-}
-        @if (activeTab() === 'users') {
-          <div class="content-card">
-            <h2>
-  {{ userType() === 'farmers' ? 'Registered Farmers' : 'Registered Bidders' }}
-    <div style="margin-bottom: 1rem; display:flex; gap:10px; justify-content:flex-end;">
-
-  <button
-    (click)="loadUsers('farmers')"
-    [class.active]="userType() === 'farmers'"
-    class="tab-btn"
-  >
-    Farmers
-  </button>
-
-  <button
-    (click)="loadUsers('bidders')"
-    [class.active]="userType() === 'bidders'"
-    class="tab-btn"
-  >
-    Bidders
-  </button>
-
-</div>
-</h2>
-           
-
-            <div class="table-container">
-            
-              @if (users().length > 0) {
-                <table class="data-table">
-                  <thead>
-                    <tr>
-                       <th>id</th>
-                      <th>Name</th>
-                      <th>Email</th>
-          
-                      <th>Contact</th>
-                      <th>Role</th>
-                      
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for (user of users(); track user.id) {
-                      <tr>
-                        <td>{{ user.id }}</td>
-                        <td>{{ user.fullName }}</td>
-                        <td>{{ user.email }}</td>
-                        <td>{{ user.contactNumber }}</td>
-                        <td>
-                          <span [class]="'status-' + user.role">{{ user.role }}</span>
-                        </td>
-                        
-                      </tr>
-                    }
-                  </tbody>
-                </table>
-              } @else {
-                <div class="empty-state">
-                  <span class="empty-icon">👥</span>
-                  <p>No users found</p>
-                </div>
-              }
+        <div class="sidebar-footer">
+          <div class="user-profile">
+            <div class="user-avatar">AD</div>
+            <div class="user-info">
+              <span class="user-name">System Admin</span>
+              <span class="user-role">Administrator</span>
             </div>
+          </div>
+          <button (click)="logout()" class="btn btn-ghost btn-icon-only">
+            <span class="app-icon">logout</span>
+          </button>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        @if (successMessage()) {
+          <div class="alert-toast">
+            <span class="app-icon">check_circle</span>
+            {{ successMessage() }}
+          </div>
+        }
+
+        @if (activeTab() === 'dashboard') {
+          <header class="content-header">
+            <h1 class="page-title">Overview</h1>
+            <p class="text-muted">Summary of system activity and key metrics.</p>
+          </header>
+
+          <div class="stats-grid">
+            <div class="stat-card card">
+              <span class="stat-label">Total Farmers</span>
+              <span class="stat-value">{{ adminDashboard()?.totalFarmers }}</span>
+            </div>
+            <div class="stat-card card">
+              <span class="stat-label">Total Bidders</span>
+              <span class="stat-value">{{ adminDashboard()?.totalBidders }}</span>
+            </div>
+            <div class="stat-card card">
+              <span class="stat-label">Active Auctions</span>
+              <span class="stat-value">{{ adminDashboard()?.activeAuctions }}</span>
+            </div>
+            <div class="stat-card card highlight">
+              <span class="stat-label">Pending Claims</span>
+              <span class="stat-value">{{ adminDashboard()?.pendingClaims }}</span>
+            </div>
+          </div>
+        }
+
+        @if (activeTab() === 'users') {
+          <header class="content-header flex-between">
+            <div>
+              <h1 class="page-title">User Directory</h1>
+              <p class="text-muted">Manage registered farmers and bidders.</p>
+            </div>
+            <div class="toggle-group">
+              <button class="btn btn-sm" [class.btn-primary]="userType() === 'farmers'" (click)="loadUsers('farmers')">Farmers</button>
+              <button class="btn btn-sm" [class.btn-primary]="userType() === 'bidders'" (click)="loadUsers('bidders')">Bidders</button>
+            </div>
+          </header>
+
+          <div class="card overflow-hidden">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Contact</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (user of users(); track user.id) {
+                  <tr>
+                    <td><strong>{{ user.fullName }}</strong></td>
+                    <td class="text-muted">{{ user.email }}</td>
+                    <td class="text-muted">{{ user.contactNumber }}</td>
+                    <td><span class="badge-soft">Verified</span></td>
+                  </tr>
+                }
+              </tbody>
+            </table>
           </div>
         }
 
         @if (activeTab() === 'crops') {
-          <div class="content-card">
-            <h2>Crop Approval Requests</h2>
-            <div class="crops-grid">
-              @if (crops().length > 0) {
-                @for (crop of crops(); track crop.id) {
-                  <div class="crop-card">
-  <div class="card-header">
-    <h3>{{ crop.cropName }}</h3>
-    <span class="status-pending">pending</span>
-  </div>
+          <header class="content-header">
+            <h1 class="page-title">Crop Approvals</h1>
+            <p class="text-muted">Review and approve crops for the bidding marketplace.</p>
+          </header>
 
-  <div class="card-body">
-
-    <div class="info-row">
-      <span class="label">Farmer ID:</span>
-      <span class="value">{{ crop.farmerId }}</span>
-    </div>
-
-    <div class="info-row">
-      <span class="label">Crop Type:</span>
-      <span class="value">{{ crop.cropType }}</span>
-    </div>
-
-    <div class="info-row">
-      <span class="label">Quantity:</span>
-      <span class="value">{{ crop.quantity }} Q</span>
-    </div>
-
-    <div class="info-row">
-      <span class="label">Fertilizer:</span>
-      <span class="value">{{ crop.fertilizerType }}</span>
-    </div>
-
-    <div class="info-row">
-      <span class="label">Base Price:</span>
-      <span class="value">₹{{ crop.basePrice }}</span>
-    </div>
-
-    <button
-      (click)="approveCrop(crop.id)"
-      class="btn btn-approve"
-    >
-      Approve for Bidding
-    </button>
-
-  </div>
-</div>
-                }
-              } @else {
-                <div class="empty-state">
-                  <span class="empty-icon">🌾</span>
-                  <p>No pending crop approvals</p>
+          <div class="grid-3">
+            @for (crop of crops(); track crop.id) {
+              <div class="card crop-card">
+                <div class="crop-header">
+                  <h3>{{ crop.cropName }}</h3>
+                  <span class="badge-soft">Pending</span>
                 </div>
-              }
-            </div>
+                <div class="crop-details">
+                  <div class="detail-row"><span>Type</span><strong>{{ crop.cropType }}</strong></div>
+                  <div class="detail-row"><span>Qty</span><strong>{{ crop.quantity }} Q</strong></div>
+                  <div class="detail-row"><span>Base</span><strong>₹{{ crop.basePrice }}</strong></div>
+                </div>
+                <button (click)="approveCrop(crop.id)" class="btn btn-primary w-full mt-4">Approve for Bidding</button>
+              </div>
+            } @empty {
+              <div class="empty-state">No pending crop approvals.</div>
+            }
           </div>
         }
 
         @if (activeTab() === 'bids') {
-          <div class="content-card">
-            <h2>Active Bidding Management</h2>
-            <div class="bids-grid">
-              @if (bids().length > 0) {
-                @for (bid of bids(); track bid.id) {
-                  <div class="bid-card">
-                    <div class="bid-header">
-                      <h3>{{ bid.cropName }}</h3>
-                      <span class="badge">{{ bid.status }}</span>
-                    </div>
-                    <div class="bid-body">
-                      <div class="info-row">
-                        <span class="label">Farmer:</span>
-                        <span class="value">{{ bid.farmerName }}</span>
-                      </div>
-                      <div class="info-row">
-                        <span class="label">Base Price:</span>
-                        <span class="value">₹{{ bid.basePrice }}</span>
-                      </div>
-                      <div class="info-row highlight">
-                        <span class="label">Highest Bid:</span>
-                        <span class="value price">₹{{ bid.highestBid }}</span>
-                      </div>
-                     @if (bid.auctionLive) {
-<div class="auction-timer">
-  ⏳ {{ bid.timeLeft }}
-</div>
-}
-                      <div class="info-row">
-                        <span class="label">Highest Bidder:</span>
-                        <span class="value">{{ bid.highestBidder }}</span>
-                      </div>
-                     
-                                           @if (!bid.auctionLive && !bid.winnerName) {
+          <header class="content-header">
+            <h1 class="page-title">Auctions</h1>
+            <p class="text-muted">Monitor and manage live bidding sessions.</p>
+          </header>
 
-<button
-  (click)="startAuction(bid)"
-  class="btn btn-auction">
-   Start Auction
-</button>
-
-}
-
-                      @if (bid.auctionLive) {
-
-                      <button class="btn btn-live">
-                        🟢 Auction Live
-                      </button>
-
-                      }
-
-                      @if (bid.winnerName) {
-
-<button class="btn btn-winner">
-🏆 Winner: {{ bid.winnerName }}
-</button>
-
-}
-                     
-                    </div>
-                  </div>
-                }
-              } @else {
-                <div class="empty-state">
-                  <span class="empty-icon">💰</span>
-                  <p>No active bids to manage</p>
+          <div class="grid-3">
+            @for (bid of bids(); track bid.id) {
+              <div class="card bid-card">
+                <div class="bid-header">
+                  <h3>{{ bid.cropName }}</h3>
+                  @if (bid.auctionLive) {
+                    <span class="status-badge live">Live</span>
+                  }
                 </div>
-              }
-            </div>
+                <div class="bid-stats">
+                  <div class="price-main">
+                    <span class="label">Highest Bid</span>
+                    <span class="value">₹{{ bid.highestBid }}</span>
+                  </div>
+                  <div class="timer" *ngIf="bid.auctionLive">
+                    <span class="app-icon">schedule</span>
+                    {{ bid.timeLeft }}
+                  </div>
+                </div>
+                <div class="bid-footer">
+                  @if (!bid.auctionLive && !bid.winnerName) {
+                    <button (click)="startAuction(bid)" class="btn btn-primary w-full">Start Auction</button>
+                  } @else if (bid.winnerName) {
+                    <div class="winner-tag">
+                      <span class="app-icon">emoji_events</span>
+                      Won by {{ bid.winnerName }}
+                    </div>
+                  } @else {
+                    <button class="btn btn-secondary w-full" disabled>Running...</button>
+                  }
+                </div>
+              </div>
+            }
           </div>
         }
-          @if (activeTab() === 'insurance') {
 
-<div class="content-card">
+        @if (activeTab() === 'insurance') {
+          <header class="content-header">
+            <h1 class="page-title">Insurance Policies</h1>
+            <p class="text-muted">Review applications for Fasal Bima Yojna.</p>
+          </header>
 
-<h2>Insurance Applications</h2>
+          <div class="card overflow-hidden">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Season</th>
+                  <th>Area</th>
+                  <th>Sum Insured</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (policy of insuranceRequests(); track policy.id) {
+                  <tr>
+                    <td>{{ policy.season }} {{ policy.year }}</td>
+                    <td>{{ policy.area }} Ha</td>
+                    <td>₹{{ policy.sumInsured }}</td>
+                    <td><span class="badge-soft">{{ policy.status }}</span></td>
+                    <td>
+                      <div class="flex gap-2">
+                        <button (click)="approveInsurance(policy.id)" class="btn btn-sm">Approve</button>
+                        <button (click)="rejectInsurance(policy.id)" class="btn btn-sm btn-ghost">Reject</button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
 
-<div class="table-container">
+        @if (activeTab() === 'claims') {
+          <header class="content-header">
+            <h1 class="page-title">Pending Claims</h1>
+            <p class="text-muted">Review crop loss claims for settlement.</p>
+          </header>
 
-@if (insuranceRequests().length > 0) {
-
-<table class="data-table">
-
-<thead>
-<tr>
-<th>Policy ID</th>
-<th>Farmer ID</th>
-<th>Crop ID</th>
-<th>Season</th>
-<th>Year</th>
-<th>Area</th>
-<th>Sum Insured</th>
-<th>Action</th>
-</tr>
-</thead>
-
-<tbody>
-
-@for (policy of insuranceRequests(); track policy.id) {
-
-<tr>
-
-<td>{{ policy.id }}</td>
-<td>{{ policy.farmerId }}</td>
-<td>{{ policy.cropId }}</td>
-<td>{{ policy.season }}</td>
-<td>{{ policy.year }}</td>
-<td>{{ policy.area }}</td>
-<td>₹{{ policy.sumInsured }}</td>
-
-<td>
-
-@if (policy.status === 'APPROVED') {
-
-<button class="btn btn-approved">
-Approved
-</button>
-
-}
-
-@else if (policy.status === 'REJECTED') {
-
-<button class="btn btn-rejected">
-Unapproved
-</button>
-
-}
-
-@else {
-
-<button
-(click)="approveInsurance(policy.id)"
-class="btn btn-approve">
-Approve
-</button>
-
-<button
-(click)="rejectInsurance(policy.id)"
-class="btn btn-reject">
-Reject
-</button>
-
-}
-
-</td>
-
-</tr>
-
-}
-
-</tbody>
-
-</table>
-
-} @else {
-
-<div class="empty-state">
-<span class="empty-icon">🛡</span>
-<p>No insurance applications</p>
-</div>
-
-}
-
-</div>
-
-</div>
-
-}
-@if (activeTab() === 'claims') {
-
-<div class="content-card">
-
-<h2>Pending Claim Approvals</h2>
-
-<div class="table-container">
-
-@if (claims().length > 0) {
-
-<table class="data-table">
-
-<thead>
-<tr>
-<th>Claim ID</th>
-<th>Policy ID</th>
-<th>Farmer ID</th>
-<th>Claim Amount</th>
-<th>Cause</th>
-<th>Date of Loss</th>
-<th>Status</th>
-</tr>
-</thead>
-
-<tbody>
-
-@for (claim of claims(); track claim.id) {
-
-<tr>
-
-<td>{{ claim.id }}</td>
-<td>{{ claim.id}}</td>
-<td>{{ claim.farmerId }}</td>
-<td>₹{{ claim.claimAmount }}</td>
-<td>{{ claim.claimReason }}</td>
-<td>{{ claim.dateOfLoss }}</td>
-
-<td>
-
-<button
-(click)="approveClaim(claim.id)"
-class="btn btn-approve">
-Approve
-</button>
-
-<button
-(click)="rejectClaim(claim.id)"
-class="btn btn-reject">
-Reject
-</button>
-
-</td>
-
-</tr>
-
-}
-
-</tbody>
-
-</table>
-
-} @else {
-
-<div class="empty-state">
-<span class="empty-icon">📄</span>
-<p>No claim requests</p>
-</div>
-
-}
-
-</div>
-
-</div>
-
-}
-      </div>
+          <div class="card overflow-hidden">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Amount</th>
+                  <th>Cause of Loss</th>
+                  <th>Date</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (claim of claims(); track claim.id) {
+                  <tr>
+                    <td><strong>₹{{ claim.claimAmount }}</strong></td>
+                    <td>{{ claim.claimReason }}</td>
+                    <td>{{ claim.dateOfLoss }}</td>
+                    <td>
+                      <div class="flex gap-2">
+                        <button (click)="approveClaim(claim.id)" class="btn btn-sm btn-primary">Approve</button>
+                        <button (click)="rejectClaim(claim.id)" class="btn btn-sm btn-ghost">Reject</button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </main>
     </div>
   `,
   styles: [`
-    .dashboard-container {
-      min-height: 100vh;
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-    }
-
-    .navbar {
+    .brand {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      padding: 1.5rem 3rem;
-      background: rgba(15, 23, 42, 0.8);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(16, 185, 129, 0.2);
-      position: sticky;
-      top: 0;
-      z-index: 100;
+      gap: 0.75rem;
+      padding: 0.5rem;
     }
 
-    .nav-logo h1 {
-      font-size: 1.5rem;
+    .brand-name {
       font-weight: 700;
-      background: linear-gradient(135deg, #10b981, #34d399);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-      
-      .btn-winner{
-
-width:100%;
-
-margin-top:10px;
-
-background:linear-gradient(135deg,#22c55e,#16a34a);
-
-color:white;
-
-font-weight:700;
-
-padding:12px;
-
-border-radius:12px;
-
-box-shadow:0 6px 20px rgba(34,197,94,.5);
-
-}
-
-    .logout-btn {
-      padding: 0.75rem 1.5rem;
-      background: rgba(239, 68, 68, 0.1);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      border-radius: 12px;
-      color: #fca5a5;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
+      font-size: 1.125rem;
+      letter-spacing: -0.025em;
     }
 
-    .logout-btn:hover {
-      background: rgba(239, 68, 68, 0.2);
-      transform: translateY(-2px);
-    }
-
-    .content {
-      padding: 2rem 3rem;
-    }
-
-    .header {
-      margin-bottom: 2rem;
-    }
-
-    .dashboard-grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-gap:25px;
-margin-top:25px;
-}
-
-.stat-card{
-display:flex;
-align-items:center;
-gap:20px;
-padding:25px;
-border-radius:18px;
-background:rgba(15,23,42,0.6);
-border:1px solid rgba(148,163,184,0.15);
-transition:all .3s ease;
-backdrop-filter:blur(10px);
-}
-
-.stat-card:hover{
-transform:translateY(-6px);
-box-shadow:0 15px 40px rgba(0,0,0,.4);
-}
-
-.icon{
-font-size:34px;
-width:60px;
-height:60px;
-display:flex;
-align-items:center;
-justify-content:center;
-border-radius:14px;
-background:rgba(255,255,255,.05);
-}
-
-.stat-info h3{
-color:#94a3b8;
-font-size:14px;
-font-weight:600;
-margin-bottom:6px;
-}
-
-.stat-info p{
-font-size:32px;
-font-weight:700;
-color:#fff;
-}
-
-/* color accents */
-
-.farmers{border-left:4px solid #22c55e;}
-.bidders{border-left:4px solid #3b82f6;}
-.crops{border-left:4px solid #10b981;}
-.pending{border-left:4px solid #f59e0b;}
-.auctions{border-left:4px solid #6366f1;}
-.insurance{border-left:4px solid #14b8a6;}
-.claims{border-left:4px solid #ef4444;}
-
-    .header h1 {
-      color: #fff;
-      font-size: 2rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .header p {
-      color: #94a3b8;
-    }
-
-    .tabs {
+    .sidebar-nav {
+      flex: 1;
       display: flex;
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-      .auction-timer{
-       color:#10b981;
-      }
-
-    .tab-btn {
-      padding: 1rem 2rem;
-      background: rgba(15, 23, 42, 0.5);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      border-radius: 12px;
-      color: #cbd5e1;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .tab-btn:hover {
-      background: rgba(16, 185, 129, 0.1);
-      color: #10b981;
-      border-color: #10b981;
-    }
-
-    .tab-btn.active {
-      background: linear-gradient(135deg, #10b981, #059669);
-      color: white;
-      border-color: transparent;
-      box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
-    }
-
-    .alert {
-      padding: 1rem;
-      border-radius: 12px;
-      margin-bottom: 1.5rem;
-      animation: slideIn 0.3s ease-out;
-    }
-      .btn-completed{
-
-width:100%;
-
-background:linear-gradient(135deg,#64748b,#475569);
-
-color:white;
-
-font-weight:700;
-
-padding:12px;
-
-border-radius:12px;
-
-margin-top:10px;
-
-}
-
-
-    .alert-success {
-      background: rgba(16, 185, 129, 0.1);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      color: #6ee7b7;
-    }
-
-    .content-card {
-      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(52, 211, 153, 0.05));
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      border-radius: 20px;
-      padding: 2rem;
-    }
-
-    .content-card h2 {
-      color: #10b981;
-      font-size: 1.5rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .table-container {
-      overflow-x: auto;
-    }
-
-    .data-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    .data-table th {
-      background: rgba(16, 185, 129, 0.2);
-      color: #10b981;
-      padding: 1rem;
-      text-align: left;
-      font-weight: 600;
-    }
-
-    .data-table td {
-      color: #cbd5e1;
-      padding: 1rem;
-      border-bottom: 1px solid rgba(16, 185, 129, 0.1);
-    }
-
-    .data-table tr:hover {
-      background: rgba(16, 185, 129, 0.05);
-    }
-
-    .badge {
-      padding: 0.35rem 0.85rem;
-      background: rgba(16, 185, 129, 0.2);
-      color: #10b981;
-      border-radius: 12px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-    }
-
-    .status-pending {
-      color: #fbbf24;
-    }
-
-    .status-approved {
-      color: #10b981;
-    }
-
-    .status-active {
-      color: #3b82f6;
-    }
-
-    .btn {
-      padding: 0.75rem 1.5rem;
-      border: none;
-      border-radius: 12px;
-      font-weight: 600;
-      font-size: 0.875rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .btn-approve {
-      background: linear-gradient(135deg, #10b981, #059669);
-      color: white;
-      box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
-    }
-
-    .btn-approve:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 30px rgba(16, 185, 129, 0.6);
-    }
-
-    .btn-finalize {
-      width: 100%;
-      margin-top: 1rem;
-      background: linear-gradient(135deg, #3b82f6, #2563eb);
-      color: white;
-      box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
-    }
-
-    .btn-finalize:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 30px rgba(59, 130, 246, 0.6);
-    }
-
-    .crops-grid,
-    .bids-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      flex-direction: column;
       gap: 1.5rem;
     }
 
-    .crop-card,
-    .bid-card {
-      background: rgba(15, 23, 42, 0.5);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      border-radius: 20px;
-      padding: 1.5rem;
-      transition: all 0.3s ease;
-      animation: fadeInUp 0.5s ease-out;
-    }
-
-    .crop-card:hover,
-    .bid-card:hover {
-      transform: translateY(-5px);
-      border-color: #10b981;
-      box-shadow: 0 10px 40px rgba(16, 185, 129, 0.3);
-    }
-
-    .card-header,
-    .bid-header {
+    .nav-group {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.5rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid rgba(16, 185, 129, 0.2);
+      flex-direction: column;
+      gap: 0.25rem;
     }
 
-    .card-header h3,
-    .bid-header h3 {
-      color: #fff;
-      font-size: 1.25rem;
+    .nav-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted-foreground);
+      padding: 0 0.75rem 0.5rem;
     }
 
-    .info-row {
+    .nav-item {
+      width: 100%;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      padding: 0.75rem 0;
-    }
-
-    .info-row.highlight {
-      background: rgba(16, 185, 129, 0.1);
-      padding: 1rem;
-      border-radius: 12px;
-      margin: 0.5rem 0;
-    }
-
-    .info-row .label {
-      color: #94a3b8;
+      gap: 0.75rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: var(--radius-md);
+      color: var(--muted-foreground);
+      background: transparent;
+      border: none;
+      font-size: 0.875rem;
       font-weight: 500;
+      cursor: pointer;
+      text-align: left;
+      transition: all var(--transition-fast);
     }
 
-    .info-row .value {
-      color: #cbd5e1;
+    .nav-item:hover {
+      background-color: var(--muted);
+      color: var(--foreground);
+    }
+
+    .nav-item.active {
+      background-color: var(--primary);
+      color: var(--primary-foreground);
+    }
+
+    .sidebar-footer {
+      border-top: 1px solid var(--border);
+      padding-top: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      background-color: var(--primary);
+      color: var(--primary-foreground);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .user-name { font-size: 0.875rem; font-weight: 600; }
+    .user-role { font-size: 0.75rem; color: var(--muted-foreground); }
+
+    .content-header { margin-bottom: 2.5rem; }
+    .page-title { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.025em; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+    }
+
+    .stat-card {
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .stat-card.highlight {
+      border-color: var(--foreground);
+      background-color: var(--muted);
+    }
+
+    .stat-label { font-size: 0.75rem; font-weight: 600; color: var(--muted-foreground); text-transform: uppercase; }
+    .stat-value { font-size: 2rem; font-weight: 700; }
+
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+
+    .admin-table th {
+      text-align: left;
+      padding: 0.75rem 1rem;
+      background-color: var(--muted);
+      border-bottom: 1px solid var(--border);
       font-weight: 600;
     }
 
-    .info-row .value.price {
-      color: #10b981;
-      font-size: 1.25rem;
+    .admin-table td {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
     }
 
-    .empty-state {
-      text-align: center;
-      padding: 4rem 2rem;
-      grid-column: 1 / -1;
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+
+    .crop-card { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; }
+    .crop-header { display: flex; justify-content: space-between; align-items: flex-start; }
+    .detail-row { display: flex; justify-content: space-between; font-size: 0.875rem; padding: 0.25rem 0; }
+    .detail-row span { color: var(--muted-foreground); }
+
+    .bid-card { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; }
+    .bid-header { display: flex; justify-content: space-between; align-items: flex-start; }
+    .status-badge.live { color: #16a34a; font-weight: 700; font-size: 0.75rem; }
+    .price-main { display: flex; flex-direction: column; }
+    .price-main .label { font-size: 0.75rem; font-weight: 600; color: var(--muted-foreground); }
+    .price-main .value { font-size: 1.5rem; font-weight: 700; }
+    .timer { display: flex; align-items: center; gap: 0.375rem; font-size: 0.875rem; font-weight: 600; color: var(--foreground); }
+    .winner-tag { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background-color: #fff9db; border-radius: var(--radius-sm); font-size: 0.875rem; font-weight: 600; }
+
+    .alert-toast {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      background-color: var(--foreground);
+      color: var(--background);
+      padding: 0.75rem 1.25rem;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      box-shadow: var(--shadow-elevated);
+      z-index: 100;
+      animation: slideDown 0.3s ease;
     }
 
-    .empty-icon {
-      font-size: 4rem;
-      display: block;
-      margin-bottom: 1rem;
-    }
+    @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-    .empty-state p {
-      color: #94a3b8;
-    }
-
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-      .btn-completed{
-width:100%;
-background:linear-gradient(135deg,#64748b,#475569);
-color:white;
-font-weight:700;
-padding:12px;
-border-radius:12px;
-margin-top:10px;
-cursor:not-allowed;
-}
-      .btn-auction {
-
-width:100%;
-
-margin-top:10px;
-
-background:linear-gradient(135deg,#10b981,#059669);
-
-color:white;
-
-font-weight:700;
-
-padding:12px;
-
-border-radius:12px;
-
-box-shadow:0 6px 20px rgba(16,185,129,.4);
-
-transition:.25s;
-
-}
-
-.btn-auction:hover{
-
-transform:translateY(-3px);
-
-box-shadow:0 10px 30px rgba(16,185,129,.6);
-
-}
-.btn-approved{
-background:linear-gradient(135deg,#22c55e,#16a34a);
-color:white;
-font-weight:700;
-padding:10px 14px;
-border-radius:10px;
-margin-right:8px;
-}
-
-.btn-rejected{
-background:linear-gradient(135deg,#ef4444,#b91c1c);
-color:white;
-font-weight:700;
-padding:10px 14px;
-border-radius:10px;
-}
-
-.btn-reject{
-background:linear-gradient(135deg,#ef4444,#dc2626);
-color:white;
-font-weight:600;
-padding:10px 14px;
-border-radius:10px;
-margin-left:8px;
-}
-
-.btn-approve-outline{
-background:transparent;
-border:2px solid #22c55e;
-color:#22c55e;
-padding:10px 14px;
-border-radius:10px;
-margin-right:8px;
-}
-
-.btn-reject-outline{
-background:transparent;
-border:2px solid #ef4444;
-color:#ef4444;
-padding:10px 14px;
-border-radius:10px;
-}
-
-.btn-live{
-
-width:100%;
-
-margin-top:10px;
-
-background:linear-gradient(135deg,#22c55e,#16a34a);
-
-color:white;
-
-font-weight:700;
-
-padding:12px;
-
-border-radius:12px;
-
-box-shadow:0 6px 20px rgba(34,197,94,.5);
-
-animation:pulse 1.5s infinite;
-
-}
-
-@keyframes pulse{
-
-0%{box-shadow:0 0 0 0 rgba(34,197,94,.6)}
-70%{box-shadow:0 0 0 12px rgba(34,197,94,0)}
-100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}
-
-}
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateX(-20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
+    .flex-between { display: flex; justify-content: space-between; align-items: flex-end; }
+    .toggle-group { display: flex; border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+    .toggle-group .btn { border: none; border-radius: 0; }
+    .btn-sm { padding: 0.25rem 0.75rem; font-size: 0.75rem; }
+    .overflow-hidden { overflow: hidden; }
+    .w-full { width: 100%; }
+    .mt-4 { margin-top: 1rem; }
+    .gap-2 { gap: 0.5rem; }
+    .text-xs { font-size: 0.75rem; }
   `]
 })
 export class AdminDashboardComponent implements OnInit {
