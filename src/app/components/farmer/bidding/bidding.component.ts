@@ -81,10 +81,7 @@ import { AuthService } from '../../../services/auth.service';
               <span class="label">Approved</span>
               <span class="value">{{ dashboard()?.approvedCrops }}</span>
             </div>
-            // <div class="stat-card card highlight">
-            //   <span class="label">Total Earnings</span>
-            //   <span class="value">₹{{ dashboard()?.totalEarnings }}</span>
-            // </div>
+            
           </div>
 
           <div class="card mt-8 overflow-hidden">
