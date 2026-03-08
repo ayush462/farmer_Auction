@@ -773,32 +773,43 @@ async loadDashboard() {
 
 async startAuction(bid:any){
 
+ console.log("START AUCTION CLICKED:", bid);
+
  const result = await this.apiService.createAuction({
    cropId: bid.id
  });
 
+ console.log("AUCTION RESPONSE:", result);
+
  if(result.success){
 
-  bid.startTime = result.auction.startTime;
-bid.endTime = result.auction.endTime;
+   console.log("START TIME:", result.auction.startTime);
+   console.log("END TIME:", result.auction.endTime);
+   console.log("CURRENT TIME:", new Date());
 
-bid.auctionLive = true;
-bid.timeLeft = "Starting...";
-this.toast.success(
-  "Auction started for bidding",
-  "Auction Live"
-);
-const endTime = new Date(result.auction.endTime).getTime();
+   bid.startTime = result.auction.startTime;
+   bid.endTime = result.auction.endTime;
 
-setTimeout(() => {
-  this.startTimer(bid, endTime);
-}, 500);   // small delay prevents UI glitch
+   bid.auctionLive = true;
+   bid.timeLeft = "Starting...";
+
+   const endTime = new Date(result.auction.endTime).getTime();
+
+   console.log("END TIME PARSED:", endTime);
+   console.log("NOW:", Date.now());
+   console.log("DIFF:", endTime - Date.now());
+
+   setTimeout(() => {
+     this.startTimer(bid, endTime);
+   }, 500);
 
    this.bids.set([...this.bids()]);
  }
-
 }
 startTimer(bid:any,endTime:number){
+
+ console.log("START TIMER FOR:", bid.id);
+ console.log("END TIME:", endTime);
 
  if(this.auctionIntervals[bid.id]) return;
 
@@ -806,7 +817,11 @@ startTimer(bid:any,endTime:number){
 
    const diff = endTime - Date.now();
 
+   console.log("TIME DIFF:", diff);
+
    if(diff <= 0){
+
+     console.log("AUCTION ENDED");
 
      clearInterval(this.auctionIntervals[bid.id]);
 
@@ -818,7 +833,6 @@ startTimer(bid:any,endTime:number){
      this.bids.set([...this.bids()]);
 
      return;
-
    }
 
    const m = Math.floor(diff/60000);
@@ -829,7 +843,6 @@ startTimer(bid:any,endTime:number){
    this.bids.set([...this.bids()]);
 
  },1000);
-
 }
 async fetchWinner(bid:any){
 
