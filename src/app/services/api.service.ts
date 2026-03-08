@@ -5,7 +5,7 @@ import { AuthService } from './auth.service';
   providedIn: 'root'
 })
 export class ApiService {
-  private baseUrl = 'http://192.168.1.5:8080/api';
+  private baseUrl = 'http://15.207.222.160:8080/api';
 
   constructor(private authService: AuthService) {}
 
