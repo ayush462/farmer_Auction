@@ -199,73 +199,86 @@ import { ToastService } from '../../../services/toast.service';
           </div>
         }
 
-        @if (activeTab() === 'bids') {
-          <header class="content-header">
-            <h1 class="page-title">Auctions</h1>
-            <p class="text-muted">Monitor and manage live bidding sessions.</p>
-          </header>
+       @if (activeTab() === 'bids') {
 
-          <div class="grid-3">
-            @for (bid of bids(); track bid.id) {
-             <div class="card bid-card">
+  <header class="content-header">
+    <h1 class="page-title">Auctions</h1>
+    <p class="text-muted">Monitor and manage live bidding sessions.</p>
+  </header>
 
-<div class="bid-header">
-  <h3>{{ bid.cropName }}</h3>
+  <div class="grid-3">
 
-  @if (bid.auctionLive) {
-    <span class="status-badge live">Live</span>
-  }
-</div>
+    @for (bid of bids(); track bid.id) {
 
-<div class="bid-stats">
+      <div class="card bid-card">
 
-  <div class="price-main">
-    <span class="label">Highest Bid</span>
-    <span class="value">₹{{ bid.highestBid }}</span>
+        <div class="bid-header">
+          <h3>{{ bid.cropName }}</h3>
+
+          @if (bid.auctionLive) {
+            <span class="status-badge live">Live</span>
+          }
+
+        </div>
+
+        <div class="bid-stats">
+
+          <div class="price-main">
+            <span class="label">Highest Bid</span>
+            <span class="value">₹{{ bid.highestBid }}</span>
+          </div>
+
+          <div class="detail-row">
+            <span>Farmer</span>
+            <strong>{{ bid.farmerName }}</strong>
+          </div>
+
+          <div class="detail-row">
+            <span>Highest Bidder</span>
+            <strong>{{ bid.highestBidder }}</strong>
+          </div>
+
+          @if (bid.auctionLive) {
+            <div class="timer">
+              <span class="app-icon">schedule</span>
+              {{ bid.timeLeft }}
+            </div>
+          }
+
+        </div>
+
+        <div class="bid-footer">
+
+          @if (!bid.auctionLive && !bid.winnerName) {
+
+            <button (click)="startAuction(bid)" class="btn btn-primary w-full">
+              Start Auction
+            </button>
+
+          } @else if (bid.winnerName) {
+
+            <div class="winner-tag">
+              <span class="app-icon">emoji_events</span>
+              Won by {{ bid.winnerName }}
+            </div>
+
+          } @else {
+
+            <button class="btn btn-secondary w-full" disabled>
+              Running...
+            </button>
+
+          }
+
+        </div>
+
+      </div>
+
+    }
+
   </div>
 
-  <div class="detail-row">
-    <span>Farmer</span>
-    <strong>{{ bid.farmerName }}</strong>
-  </div>
-
-  <div class="detail-row">
-    <span>Highest Bidder</span>
-    <strong>{{ bid.highestBidder }}</strong>
-  </div>
-
-  <div class="timer" *ngIf="bid.auctionLive">
-    <span class="app-icon">schedule</span>
-    {{ bid.timeLeft }}
-  </div>
-
-</div>
-
-<div class="bid-footer">
-
-@if (!bid.auctionLive && !bid.winnerName) {
-  <button (click)="startAuction(bid)" class="btn btn-primary w-full">
-    Start Auction
-  </button>
 }
-
-@else if (bid.winnerName) {
-  <div class="winner-tag">
-    <span class="app-icon">emoji_events</span>
-    Won by {{ bid.winnerName }}
-  </div>
-}
-
-@else {
-  <button class="btn btn-secondary w-full" disabled>
-    Running...
-  </button>
-}
-
-</div>
-
-</div>
-        }
 
         @if (activeTab() === 'insurance') {
           <header class="content-header">
