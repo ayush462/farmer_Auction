@@ -77,20 +77,17 @@ async register(data: any): Promise<{ success: boolean; message?: string }> {
     const text = await response.text();
     console.log("REGISTER RESPONSE:", text);
 
-    const result = text ? JSON.parse(text) : null;
-
     if (!response.ok) {
-      return { success: false, message: result?.message || 'Registration failed' };
+      return { success: false, message: text || 'Registration failed' };
     }
 
-    return { success: true, message: result?.message || 'Registration successful!' };
+    return { success: true, message: text || 'Registration successful!' };
 
   } catch (error) {
     console.error('Registration error:', error);
     return { success: false, message: 'Network error' };
   }
 }
-
   logout(): void {
     this.currentUser.set(null);
     this.isAuthenticated.set(false);
