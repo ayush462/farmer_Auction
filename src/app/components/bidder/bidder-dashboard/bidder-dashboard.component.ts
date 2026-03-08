@@ -542,8 +542,8 @@ async loadCrops(){
 
    }
 
-   const start = new Date(auction.startTime).getTime();
-   const end = new Date(auction.endTime).getTime();
+  const start = new Date(auction.startTime + "Z").getTime();
+const end = new Date(auction.endTime + "Z").getTime();
 
    //--------------------------------
    // AUCTION NOT STARTED

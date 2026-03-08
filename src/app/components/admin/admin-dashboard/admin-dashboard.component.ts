@@ -207,38 +207,64 @@ import { ToastService } from '../../../services/toast.service';
 
           <div class="grid-3">
             @for (bid of bids(); track bid.id) {
-              <div class="card bid-card">
-                <div class="bid-header">
-                  <h3>{{ bid.cropName }}</h3>
-                  @if (bid.auctionLive) {
-                    <span class="status-badge live">Live</span>
-                  }
-                </div>
-                <div class="bid-stats">
-                  <div class="price-main">
-                    <span class="label">Highest Bid</span>
-                    <span class="value">₹{{ bid.highestBid }}</span>
-                  </div>
-                  <div class="timer" *ngIf="bid.auctionLive">
-                    <span class="app-icon">schedule</span>
-                    {{ bid.timeLeft }}
-                  </div>
-                </div>
-                <div class="bid-footer">
-                  @if (!bid.auctionLive && !bid.winnerName) {
-                    <button (click)="startAuction(bid)" class="btn btn-primary w-full">Start Auction</button>
-                  } @else if (bid.winnerName) {
-                    <div class="winner-tag">
-                      <span class="app-icon">emoji_events</span>
-                      Won by {{ bid.winnerName }}
-                    </div>
-                  } @else {
-                    <button class="btn btn-secondary w-full" disabled>Running...</button>
-                  }
-                </div>
-              </div>
-            }
-          </div>
+             <div class="card bid-card">
+
+<div class="bid-header">
+  <h3>{{ bid.cropName }}</h3>
+
+  @if (bid.auctionLive) {
+    <span class="status-badge live">Live</span>
+  }
+</div>
+
+<div class="bid-stats">
+
+  <div class="price-main">
+    <span class="label">Highest Bid</span>
+    <span class="value">₹{{ bid.highestBid }}</span>
+  </div>
+
+  <div class="detail-row">
+    <span>Farmer</span>
+    <strong>{{ bid.farmerName }}</strong>
+  </div>
+
+  <div class="detail-row">
+    <span>Highest Bidder</span>
+    <strong>{{ bid.highestBidder }}</strong>
+  </div>
+
+  <div class="timer" *ngIf="bid.auctionLive">
+    <span class="app-icon">schedule</span>
+    {{ bid.timeLeft }}
+  </div>
+
+</div>
+
+<div class="bid-footer">
+
+@if (!bid.auctionLive && !bid.winnerName) {
+  <button (click)="startAuction(bid)" class="btn btn-primary w-full">
+    Start Auction
+  </button>
+}
+
+@else if (bid.winnerName) {
+  <div class="winner-tag">
+    <span class="app-icon">emoji_events</span>
+    Won by {{ bid.winnerName }}
+  </div>
+}
+
+@else {
+  <button class="btn btn-secondary w-full" disabled>
+    Running...
+  </button>
+}
+
+</div>
+
+</div>
         }
 
         @if (activeTab() === 'insurance') {
@@ -906,10 +932,9 @@ async loadBids(){
 
   continue;
 }
-
-    const start = new Date(auction.startTime).getTime();
-    const end = new Date(auction.endTime).getTime();
-
+    
+    const start = new Date(auction.startTime + "Z").getTime();
+const end = new Date(auction.endTime + "Z").getTime();
     if(now < start){
 
       crop.auctionLive = false;
