@@ -496,6 +496,7 @@ startTimer(crop:any,endTime:number){
   if(!farmerId) return;
 
   const data = await this.apiService.getFarmerDashboard(farmerId);
+  console.log("FARMER DASHBOARD:", data);
 
   this.dashboard.set(data);
 
