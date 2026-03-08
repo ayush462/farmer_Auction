@@ -1,11 +1,13 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, FormsModule],
   template: `
     <div class="home-page page-fade">
       <header class="navbar">
@@ -121,14 +123,27 @@ import { CommonModule } from '@angular/common';
                 <div class="form-grid">
                   <div class="field">
                     <label>Email</label>
-                    <input type="email" class="input" placeholder="you&#64;example.com" />
+                   <input
+  type="email"
+  class="input"
+  placeholder="you@example.com"
+  [(ngModel)]="email"
+/>
                   </div>
                   <div class="field">
                     <label>Message</label>
-                    <textarea class="textarea" rows="3" placeholder="How can we help?"></textarea>
+                    <textarea
+  class="textarea"
+  rows="3"
+  placeholder="How can we help?"
+  [(ngModel)]="message"
+></textarea>
                   </div>
                 </div>
-                <button class="btn btn-primary w-full mt-4">Send Message</button>
+               <button
+  class="btn btn-primary w-full mt-4"
+  (click)="sendMessage()"
+>Send Message</button>
               </div>
             </div>
           </div>
@@ -504,4 +519,33 @@ import { CommonModule } from '@angular/common';
     }
   `]
 })
-export class HomeComponent {}
+export class HomeComponent {
+  email = '';
+message = '';
+
+constructor(private toast: ToastService) {}
+sendMessage() {
+
+  if(!this.email || !this.message){
+    this.toast.error(
+      "Please fill email and message",
+      "Missing Fields"
+    );
+    return;
+  }
+
+  // simulate sending message
+  setTimeout(() => {
+
+    this.toast.success(
+      "Your message has been sent. We will contact you soon.",
+      "Message Sent"
+    );
+
+    this.email = '';
+    this.message = '';
+
+  },500);
+
+}
+}

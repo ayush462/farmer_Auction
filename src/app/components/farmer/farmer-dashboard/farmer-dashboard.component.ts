@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
+import { ToastService } from '../../../services/toast.service';
 
 @Component({
   selector: 'app-farmer-dashboard',
@@ -9,7 +10,7 @@ import { AuthService } from '../../../services/auth.service';
   imports: [CommonModule, RouterLink, RouterOutlet],
   template: `
     <div class="dashboard-layout page-fade">
-      <aside class="sidebar">
+      <aside class="sidebar" [class.open]="sidebarOpen">
         <div class="sidebar-header">
           <div class="brand">
             <span class="app-icon">agriculture</span>
@@ -20,11 +21,11 @@ import { AuthService } from '../../../services/auth.service';
         <nav class="sidebar-nav">
           <div class="nav-group">
             <span class="nav-label">Dashboard</span>
-            <a routerLink="/farmer/bidding" routerLinkActive="active" class="nav-item">
+            <a routerLink="/farmer/bidding" routerLinkActive="active" class="nav-item" (click)="closeSidebar()">
               <span class="app-icon">gavel</span>
               <span>Bidding</span>
             </a>
-            <a routerLink="/farmer/insurance" routerLinkActive="active" class="nav-item">
+            <a routerLink="/farmer/insurance" routerLinkActive="active" class="nav-item" (click)="closeSidebar()">
               <span class="app-icon">shield</span>
               <span>Insurance</span>
             </a>
@@ -46,8 +47,19 @@ import { AuthService } from '../../../services/auth.service';
           </button>
         </div>
       </aside>
+      <div
+  class="sidebar-overlay"
+  *ngIf="sidebarOpen"
+  (click)="closeSidebar()">
+</div>
 
       <main class="main-content">
+      <header class="mobile-header">
+  <button class="hamburger" (click)="toggleSidebar()">
+    <span class="app-icon">menu</span>
+  </button>
+  <span class="mobile-title">Farm-Scheme</span>
+</header>
         <div class="content-container">
           <router-outlet></router-outlet>
         </div>
@@ -143,6 +155,88 @@ import { AuthService } from '../../../services/auth.service';
       font-weight: 600;
       border: 1px solid var(--border);
     }
+      .dashboard-layout{
+  display:flex;
+  min-height:100vh;
+}
+
+/* Sidebar */
+
+.sidebar{
+  width:250px;
+  background:var(--background);
+  border-right:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  padding:1rem;
+  transition:transform .3s ease;
+}
+
+/* Main */
+
+.main-content{
+  flex:1;
+  padding:2rem;
+}
+
+/* Mobile Header */
+
+.mobile-header{
+  display:none;
+  align-items:center;
+  gap:1rem;
+  margin-bottom:1rem;
+}
+
+.hamburger{
+  background:none;
+  border:none;
+  cursor:pointer;
+}
+
+.mobile-title{
+  font-weight:700;
+}
+
+/* Overlay */
+
+.sidebar-overlay{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.35);
+  z-index:900;
+}
+
+/* MOBILE */
+
+@media (max-width:768px){
+
+  .mobile-header{
+    display:flex;
+  }
+
+  .sidebar{
+    position:fixed;
+    left:0;
+    top:0;
+    height:100%;
+    transform:translateX(-100%);
+    z-index:1000;
+    background:white;
+  }
+
+  .sidebar.open{
+    transform:translateX(0);
+  }
+
+  .main-content{
+    padding:1rem;
+  }
+
+}
 
     .user-info {
       display: flex;
@@ -170,23 +264,39 @@ import { AuthService } from '../../../services/auth.service';
       margin: 0 auto;
     }
 
-    @media (max-width: 768px) {
-      .sidebar {
-        display: none;
-      }
-      .main-content {
-        padding: 1rem;
-      }
-    }
+    
+    
   `]
 })
 export class FarmerDashboardComponent {
   constructor(
     public authService: AuthService,
-    private router: Router
+    private router: Router,
+    private toast: ToastService
   ) {}
 
-  logout() {
-    this.authService.logout();
-  }
+  sidebarOpen = false;
+
+toggleSidebar() {
+  this.sidebarOpen = !this.sidebarOpen;
+}
+
+closeSidebar() {
+  this.sidebarOpen = false;
+}
+
+ logout() {
+
+  const confirmLogout = confirm("Are you sure you want to logout?");
+
+  if(!confirmLogout) return;
+
+  this.authService.logout();
+
+  this.toast.success(
+    "You have been logged out successfully",
+    "Logged out"
+  );
+
+}
 }

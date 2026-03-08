@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ApiService } from '../../../services/api.service';
 import { AuthService } from '../../../services/auth.service';
+import { ToastService } from '../../../services/toast.service';
 
 @Component({
   selector: 'app-bidder-dashboard',
@@ -451,6 +452,7 @@ export class BidderDashboardComponent implements OnInit {
     public authService: AuthService,
     private apiService: ApiService,
     private router: Router
+    ,private toast: ToastService
   ) {}
 
  ngOnInit() {
@@ -594,9 +596,20 @@ async loadCrops(){
  this.crops.set(crops);
 
 }
-  logout() {
-    this.authService.logout();
-  }
+ logout() {
+
+  const confirmLogout = confirm("Are you sure you want to logout?");
+
+  if(!confirmLogout) return;
+
+  this.authService.logout();
+
+  this.toast.success(
+    "You have been logged out successfully",
+    "Logged out"
+  );
+
+}
 
  async confirmBid(crop: any) {
 

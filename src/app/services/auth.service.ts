@@ -20,42 +20,50 @@ export class AuthService {
   }
 
   async login(email: string, password: string): Promise<{ success: boolean; message?: string }> {
+  try {
+    const response = await fetch('http://192.168.1.5:8080/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password })
+    });
+
+    let result = null;
+
     try {
-      const response = await fetch('http://192.168.1.5:8080/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password })
-      });
+      result = await response.json();
+    } catch {}
 
-      if (!response.ok) {
-        const error = await response.json();
-        return { success: false, message: error.message || 'Login failed' };
-      }
-
-      const data = await response.json();
-
-      const user: User = {
-        id: data.id,
-        email: data.email,
-        name: data.name,
-        role: data.role
+    if (!response.ok) {
+      return {
+        success: false,
+        message: result?.message || 'Invalid email or password'
       };
-
-      this.currentUser.set(user);
-      this.isAuthenticated.set(true);
-      localStorage.setItem('user', JSON.stringify(user));
-      localStorage.setItem('token', data.token);
-
-      this.router.navigate([`/${user.role}`]);
-      return { success: true };
-    } catch (error) {
-      console.error('Login error:', error);
-      return { success: false, message: 'Network error. Please try again.' };
     }
-  }
 
+    const user: User = {
+      id: result.id,
+      email: result.email,
+      name: result.name,
+      role: result.role
+    };
+
+    this.currentUser.set(user);
+    this.isAuthenticated.set(true);
+
+    localStorage.setItem('user', JSON.stringify(user));
+    localStorage.setItem('token', result.token);
+
+    this.router.navigate([`/${user.role}`]);
+
+    return { success: true };
+
+  } catch (error) {
+    console.error('Login error:', error);
+    return { success: false, message: 'Network error. Please try again.' };
+  }
+}
  async register(data: any): Promise<{ success: boolean; message?: string }> {
   try {
     const response = await fetch('http://192.168.1.5:8080/api/auth/register', {

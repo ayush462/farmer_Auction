@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ApiService } from '../../../services/api.service';
 import { AuthService } from '../../../services/auth.service';
+import { ToastService } from '../../../services/toast.service';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -11,7 +12,7 @@ import { AuthService } from '../../../services/auth.service';
   imports: [CommonModule, FormsModule],
   template: `
     <div class="dashboard-layout page-fade">
-      <aside class="sidebar">
+      <aside class="sidebar" [class.open]="sidebarOpen()">
         <div class="sidebar-header">
           <div class="brand">
             <span class="app-icon">admin_panel_settings</span>
@@ -22,11 +23,11 @@ import { AuthService } from '../../../services/auth.service';
         <nav class="sidebar-nav">
           <div class="nav-group">
             <span class="nav-label">General</span>
-            <button class="nav-item" [class.active]="activeTab() === 'dashboard'" (click)="loadDashboard()">
+            <button class="nav-item" [class.active]="activeTab() === 'dashboard'" (click)="loadDashboard();closeSidebar()">
               <span class="app-icon">dashboard</span>
               <span>Overview</span>
             </button>
-            <button class="nav-item" [class.active]="activeTab() === 'users'" (click)="loadUsers()">
+            <button class="nav-item" [class.active]="activeTab() === 'users'" (click)="loadUsers();closeSidebar();">
               <span class="app-icon">group</span>
               <span>User Directory</span>
             </button>
@@ -34,11 +35,11 @@ import { AuthService } from '../../../services/auth.service';
 
           <div class="nav-group">
             <span class="nav-label">Marketplace</span>
-            <button class="nav-item" [class.active]="activeTab() === 'crops'" (click)="loadCrops()">
+            <button class="nav-item" [class.active]="activeTab() === 'crops'" (click)="loadCrops();closeSidebar()">
               <span class="app-icon">inventory</span>
               <span>Crop Approvals</span>
             </button>
-            <button class="nav-item" [class.active]="activeTab() === 'bids'" (click)="loadBids()">
+            <button class="nav-item" [class.active]="activeTab() === 'bids'" (click)="loadBids();closeSidebar()">
               <span class="app-icon">gavel</span>
               <span>Auctions</span>
             </button>
@@ -46,11 +47,11 @@ import { AuthService } from '../../../services/auth.service';
 
           <div class="nav-group">
             <span class="nav-label">Insurance</span>
-            <button class="nav-item" [class.active]="activeTab() === 'insurance'" (click)="loadInsurance()">
+            <button class="nav-item" [class.active]="activeTab() === 'insurance'" (click)="loadInsurance();closeSidebar()">
               <span class="app-icon">shield</span>
               <span>Policies</span>
             </button>
-            <button class="nav-item" [class.active]="activeTab() === 'claims'" (click)="loadClaims()">
+            <button class="nav-item" [class.active]="activeTab() === 'claims'" (click)="loadClaims();closeSidebar()">
               <span class="app-icon">assignment</span>
               <span>Claims</span>
             </button>
@@ -70,8 +71,19 @@ import { AuthService } from '../../../services/auth.service';
           </button>
         </div>
       </aside>
+      <div
+  class="sidebar-overlay"
+  *ngIf="sidebarOpen()"
+  (click)="closeSidebar()">
+</div>
 
       <main class="main-content">
+      <header class="mobile-header">
+  <button class="hamburger" (click)="toggleSidebar()">
+    <span class="app-icon">menu</span>
+  </button>
+  <span class="mobile-title">Admin Portal</span>
+</header>
         @if (successMessage()) {
           <div class="alert-toast">
             <span class="app-icon">check_circle</span>
@@ -85,24 +97,44 @@ import { AuthService } from '../../../services/auth.service';
             <p class="text-muted">Summary of system activity and key metrics.</p>
           </header>
 
-          <div class="stats-grid">
-            <div class="stat-card card">
-              <span class="stat-label">Total Farmers</span>
-              <span class="stat-value">{{ adminDashboard()?.totalFarmers }}</span>
-            </div>
-            <div class="stat-card card">
-              <span class="stat-label">Total Bidders</span>
-              <span class="stat-value">{{ adminDashboard()?.totalBidders }}</span>
-            </div>
-            <div class="stat-card card">
-              <span class="stat-label">Active Auctions</span>
-              <span class="stat-value">{{ adminDashboard()?.activeAuctions }}</span>
-            </div>
-            <div class="stat-card card highlight">
-              <span class="stat-label">Pending Claims</span>
-              <span class="stat-value">{{ adminDashboard()?.pendingClaims }}</span>
-            </div>
-          </div>
+         <div class="stats-grid">
+
+  <div class="stat-card card">
+    <span class="stat-label">Total Farmers</span>
+    <span class="stat-value">{{ adminDashboard()?.totalFarmers }}</span>
+  </div>
+
+  <div class="stat-card card">
+    <span class="stat-label">Total Bidders</span>
+    <span class="stat-value">{{ adminDashboard()?.totalBidders }}</span>
+  </div>
+
+  <div class="stat-card card">
+    <span class="stat-label">Total Crops</span>
+    <span class="stat-value">{{ adminDashboard()?.totalCrops }}</span>
+  </div>
+
+  <div class="stat-card card">
+    <span class="stat-label">Pending Crops</span>
+    <span class="stat-value">{{ adminDashboard()?.pendingCrops }}</span>
+  </div>
+
+  <div class="stat-card card">
+    <span class="stat-label">Active Auctions</span>
+    <span class="stat-value">{{ adminDashboard()?.activeAuctions }}</span>
+  </div>
+
+  <div class="stat-card card highlight">
+    <span class="stat-label">Insurance Policies</span>
+    <span class="stat-value">{{ adminDashboard()?.insurancePolicies }}</span>
+  </div>
+
+  <div class="stat-card card highlight">
+    <span class="stat-label">Pending Claims</span>
+    <span class="stat-value">{{ adminDashboard()?.pendingClaims }}</span>
+  </div>
+
+</div>
         }
 
         @if (activeTab() === 'users') {
@@ -372,6 +404,21 @@ import { AuthService } from '../../../services/auth.service';
       font-size: 0.75rem;
       font-weight: 700;
     }
+      .sidebar-overlay{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.35);
+  z-index:900;
+}
+
+@media (min-width:900px){
+  .sidebar-overlay{
+    display:none;
+  }
+}
 
     .user-name { font-size: 0.875rem; font-weight: 600; }
     .user-role { font-size: 0.75rem; color: var(--muted-foreground); }
@@ -450,6 +497,96 @@ import { AuthService } from '../../../services/auth.service';
       z-index: 100;
       animation: slideDown 0.3s ease;
     }
+      /* Layout */
+
+.dashboard-layout{
+  display:flex;
+  min-height:100vh;
+}
+
+/* Sidebar */
+
+.sidebar{
+  width:260px;
+  background:var(--background);
+  border-right:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  padding:1rem;
+  transition:transform .3s ease;
+}
+
+.main-content{
+  flex:1;
+  padding:2rem;
+}
+
+/* Hamburger */
+
+.mobile-header{
+  display:none;
+  align-items:center;
+  gap:1rem;
+  margin-bottom:1.5rem;
+}
+
+.hamburger{
+  background:none;
+  border:none;
+  cursor:pointer;
+  padding:6px;
+}
+
+.mobile-title{
+  font-weight:700;
+  font-size:1.1rem;
+}
+
+/* MOBILE */
+
+@media (max-width: 900px){
+
+  .mobile-header{
+    display:flex;
+  }
+
+  .sidebar{
+    position:fixed;
+    left:0;
+    top:0;
+    height:100%;
+    transform:translateX(-100%);
+    z-index:1000;
+    background:white;
+  }
+
+  .sidebar.open{
+    transform:translateX(0);
+  }
+
+  .main-content{
+    padding:1.5rem;
+  }
+
+  .stats-grid{
+    grid-template-columns: repeat(2,1fr);
+  }
+
+  .grid-3{
+    grid-template-columns:1fr;
+  }
+
+}
+
+/* SMALL MOBILE */
+
+@media (max-width:500px){
+
+  .stats-grid{
+    grid-template-columns:1fr;
+  }
+
+}
 
     @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
@@ -477,11 +614,23 @@ activeTab = signal<'dashboard' | 'users' | 'crops' | 'bids' | 'insurance' | 'cla
   adminDashboard = signal<any>(null);
   insuranceRequests = signal<any[]>([]);
   claims = signal<any[]>([]);
+  sidebarOpen = signal(false);
+
+
+
+toggleSidebar() {
+  this.sidebarOpen.set(!this.sidebarOpen());
+}
+
+closeSidebar() {
+  this.sidebarOpen.set(false);
+}
 
   constructor(
     private authService: AuthService,
     private apiService: ApiService,
-    private router: Router
+    private router: Router,
+    private toast: ToastService
   ) {}
 
   ngOnInit() {
@@ -505,63 +654,74 @@ async approveInsurance(policyId: number) {
 
   if (result.success) {
 
-    this.insuranceRequests.update(list =>
-      list.filter(p => p.id !== policyId)
-    );
-
     this.successMessage.set("Insurance Approved");
+
+    await this.loadInsurance();   // reload list
+    this.toast.success(
+  "Insurance approved for the policy",
+  "Insurance Approved"
+);
 
     setTimeout(() => this.successMessage.set(""), 3000);
   }
+
 }
+
 async rejectInsurance(policyId: number) {
 
   const result = await this.apiService.rejectInsurance(policyId);
 
   if (result.success) {
 
-    this.insuranceRequests.update(list =>
-      list.filter(p => p.id !== policyId)
-    );
-
     this.successMessage.set("Insurance Rejected");
+
+    await this.loadInsurance();   // reload list
+    this.toast.success(
+  "Insurance rejected for the policy",
+  "Insurance Rejected"
+);
 
     setTimeout(() => this.successMessage.set(""), 3000);
   }
-}
-async approveClaim(policyId:number){
-  console.log("Approving claim for policy ID:", policyId); // debug log
-
- const result = await this.apiService.approveClaim(policyId);
-
- if(result.success){
-
-   this.claims.update(list =>
-     list.filter(c => c.id !== policyId)
-   );
-
-   this.successMessage.set("Claim Approved");
-
-   setTimeout(()=>this.successMessage.set(""),3000);
-
- }
 
 }
-async rejectClaim(policyId:number){
+async approveClaim(policyId: number) {
 
- const result = await this.apiService.rejectClaim(policyId);
+  const result = await this.apiService.approveClaim(policyId);
 
- if(result.success){
+  if (result.success) {
 
-   this.claims.update(list =>
-    list.filter(c => c.id !== policyId)
-   );
+    this.successMessage.set("Claim Approved");
 
-   this.successMessage.set("Claim Rejected");
+    await this.loadClaims();   // reload list
+    this.toast.success(
+  "Claim approved for processing",
+  "Claim Approved"
+);
 
-   setTimeout(()=>this.successMessage.set(""),3000);
+    setTimeout(() => this.successMessage.set(""), 3000);
 
- }
+  }
+
+}
+
+async rejectClaim(policyId: number) {
+
+  const result = await this.apiService.rejectClaim(policyId);
+
+  if (result.success) {
+
+    this.successMessage.set("Claim Rejected");
+
+    await this.loadClaims();   // reload list
+    this.toast.success(
+  "Claim rejected for processing",
+  "Claim Rejected"
+);
+
+    setTimeout(() => this.successMessage.set(""), 3000);
+
+  }
 
 }
 async loadClaims() {
@@ -619,14 +779,20 @@ async startAuction(bid:any){
 
  if(result.success){
 
-   bid.startTime = result.auction.startTime;
-   bid.endTime = result.auction.endTime;
+  bid.startTime = result.auction.startTime;
+bid.endTime = result.auction.endTime;
 
-   bid.auctionLive = true;
+bid.auctionLive = true;
+bid.timeLeft = "Starting...";
+this.toast.success(
+  "Auction started for bidding",
+  "Auction Live"
+);
+const endTime = new Date(result.auction.endTime).getTime();
 
-   const endTime = new Date(bid.endTime).getTime();
-
-   this.startTimer(bid,endTime);
+setTimeout(() => {
+  this.startTimer(bid, endTime);
+}, 500);   // small delay prevents UI glitch
 
    this.bids.set([...this.bids()]);
  }
@@ -645,7 +811,7 @@ startTimer(bid:any,endTime:number){
      clearInterval(this.auctionIntervals[bid.id]);
 
      bid.auctionLive = false;
-    //  bid.timeLeft = "Auction Completed";
+     bid.timeLeft = "Auction Completed";
 
      this.fetchWinner(bid);
 
@@ -770,7 +936,11 @@ async loadBids(){
   async approveCrop(cropId: string) {
     const result = await this.apiService.approveCrop(cropId);
     if (result.success) {
-      this.successMessage.set(result.message || 'Crop approved for bidding!');
+      this.toast.success(
+  "Crop approved for bidding",
+  "Crop Approved"
+);
+
       await this.loadCrops();
       setTimeout(() => this.successMessage.set(''), 3000);
     }
@@ -797,7 +967,18 @@ async loadBids(){
 
 }
 
-  logout() {
-    this.authService.logout();
-  }
+ logout() {
+
+  const confirmLogout = confirm("Are you sure you want to logout?");
+
+  if(!confirmLogout) return;
+
+  this.authService.logout();
+
+  this.toast.success(
+    "You have been logged out successfully",
+    "Logged out"
+  );
+
+}
 }
