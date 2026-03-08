@@ -10,26 +10,18 @@ import { ApiService } from '../../../services/api.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="insurance-container">
-      <div class="header">
-        <h1>Fasal Bima Yojna</h1>
-        <p>Protect your crops with government-backed insurance</p>
-      </div>
+    <div class="page-fade">
+      <header class="content-header">
+        <h1 class="page-title">Fasal Bima Yojna</h1>
+        <p class="text-muted">Government-backed insurance to secure your agricultural future.</p>
+      </header>
 
-      <div class="tabs">
-        <button
-          [class.active]="activeTab() === 'apply'"
-          (click)="activeTab.set('apply')"
-          class="tab-btn"
-        >
-          Apply for Insurance
+      <div class="tab-group card">
+        <button [class.active]="activeTab() === 'apply'" (click)="activeTab.set('apply')">
+          New Application
         </button>
-        <button
-          [class.active]="activeTab() === 'claim'"
-          (click)="activeTab.set('claim')"
-          class="tab-btn"
-        >
-          Claim Insurance
+        <button [class.active]="activeTab() === 'claim'" (click)="activeTab.set('claim')">
+          Submit Claim
         </button>
       </div>
 
@@ -37,503 +29,203 @@ import { ApiService } from '../../../services/api.service';
         <div class="alert alert-success">{{ successMessage() }}</div>
       }
 
-      @if (errorMessage()) {
-        <div class="alert alert-error">{{ errorMessage() }}</div>
-      }
-
       @if (activeTab() === 'apply') {
-        <div class="content-card">
-          <form (ngSubmit)="calculateInsurance()" class="insurance-form">
-            <h3>Calculate Insurance Premium</h3>
+        <div class="form-container">
+          <div class="card p-8">
+            <form (ngSubmit)="calculateInsurance()" class="form-grid">
+              <h3 class="text-lg font-bold mb-4">Premium Calculator</h3>
 
-            <div class="form-row">
-              <div class="form-group">
-                <label>Season *</label>
-                <select [(ngModel)]="insuranceData.season" name="season" required>
-                  <option value="">Select Season</option>
-                  <option value="kharif">Kharif</option>
-                  <option value="rabi">Rabi</option>
-                  <option value="annual">Annual/Horticultural</option>
-                </select>
+              <div class="grid-2">
+                <div class="field">
+                  <label>Season</label>
+                  <select class="select" [(ngModel)]="insuranceData.season" name="season" required>
+                    <option value="">Select Season</option>
+                    <option value="kharif">Kharif</option>
+                    <option value="rabi">Rabi</option>
+                    <option value="annual">Annual/Horticultural</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Year</label>
+                  <input class="input" type="number" [(ngModel)]="insuranceData.year" name="year" placeholder="2024" required />
+                </div>
               </div>
-              <div class="form-group">
-                <label>Year *</label>
-                <input type="number" [(ngModel)]="insuranceData.year" name="year" placeholder="2024" required />
+
+              <div class="grid-2">
+                <div class="field">
+                  <label>Select Crop</label>
+                  <select class="select" [ngModel]="selectedCropId()" (ngModelChange)="selectedCropId.set($event)" name="cropId" required>
+                    <option value="">Select Crop</option>
+                    @for (crop of crops(); track crop.id) {
+                      <option [value]="crop.id">{{ crop.cropName }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Area (Hectares)</label>
+                  <input class="input" type="number" [(ngModel)]="insuranceData.area" name="area" placeholder="Enter area" required />
+                </div>
               </div>
-            </div>
 
-            <div class="form-row">
-              <div class="form-group">
-                <label>Crop *</label>
-                <select
-  [ngModel]="selectedCropId()"
-  (ngModelChange)="selectedCropId.set($event)"
-  name="cropId"
-  required
->
-  <option value="">Select Crop</option>
-
-  @for (crop of crops(); track crop.id) {
-    <option [value]="crop.id">
-      {{ crop.cropName }}
-    </option>
-  }
-</select>
+              <div class="field">
+                <label>Sum Insured (per Hectare)</label>
+                <input class="input" type="number" [(ngModel)]="insuranceData.sumInsured" name="sumInsured" placeholder="Enter sum insured" required />
               </div>
-              <div class="form-group">
-                <label>Area (in Hectares) *</label>
-                <input type="number" [(ngModel)]="insuranceData.area" name="area" placeholder="Enter area" required />
+
+              <div class="form-actions pt-4">
+                <button type="button" (click)="resetCalculator()" class="btn btn-secondary">Reset</button>
+                <button type="submit" class="btn btn-primary" [disabled]="loading()">
+                  @if (loading()) { Calculating... } @else { Calculate Premium }
+                </button>
               </div>
-            </div>
-
-            <div class="form-group">
-              <label>Sum Insured (per Hectare) *</label>
-              <input type="number" [(ngModel)]="insuranceData.sumInsured" name="sumInsured" placeholder="Enter sum insured" required />
-            </div>
-
-            <div class="form-actions">
-              <button type="button" (click)="resetCalculator()" class="btn btn-secondary">Reset</button>
-              <button type="submit" class="btn btn-primary" [disabled]="loading()">
-                @if (loading()) {
-                  <span class="spinner"></span> Calculating...
-                } @else {
-                  Calculate
-                }
-              </button>
-            </div>
-          </form>
+            </form>
+          </div>
 
           @if (calculatedPremium()) {
-            <div class="premium-result">
-              <h3>Insurance Details</h3>
-              <div class="result-grid">
-                <div class="result-item">
-                  <span class="label">Insurance Company:</span>
-                  <span class="value">{{ calculatedPremium().company }}</span>
-                </div>
-                <div class="result-item">
-                  <span class="label">Sum Insured per Hectare:</span>
-                  <span class="value">₹{{ insuranceData.sumInsured }}</span>
-                </div>
-                <div class="result-item">
-                  <span class="label">Total Area:</span>
-                  <span class="value">{{ insuranceData.area }} Hectares</span>
-                </div>
-                <div class="result-item">
-                  <span class="label">Total Sum Insured:</span>
+            <div class="card p-8 mt-6 highlight-card">
+              <h3 class="text-lg font-bold mb-6">Application Summary</h3>
+              <div class="summary-grid">
+                <div class="summary-item">
+                  <span class="label">Total Sum Insured</span>
                   <span class="value">₹{{ calculatedPremium().totalSumInsured }}</span>
                 </div>
-                <div class="result-item">
-                  <span class="label">Share Premium:</span>
-                  <span class="value">{{ calculatedPremium().sharePremium }}%</span>
-                </div>
-                <div class="result-item highlight">
-                  <span class="label">Premium Amount (You Pay):</span>
-                  <span class="value price">₹{{ calculatedPremium().premiumAmount }}</span>
+                <div class="summary-item">
+                  <span class="label">Your Share ({{ calculatedPremium().sharePremium }}%)</span>
+                  <span class="value text-primary">₹{{ calculatedPremium().premiumAmount }}</span>
                 </div>
               </div>
 
-              <div class="premium-info">
-                <h4>Premium Rates:</h4>
-                <ul>
-                  <li>Kharif Crops: 2% of sum insured</li>
-                  <li>Rabi Crops: 1.5% of sum insured</li>
-                  <li>Annual/Horticultural Crops: 5% of sum insured</li>
-                </ul>
-                <p>The balance premium will be paid by the Government</p>
+              <div class="info-box mt-6">
+                <p class="text-sm italic">The balance premium will be covered by the Government schemes.</p>
               </div>
 
-              <button (click)="applyInsurance()" class="btn btn-primary btn-apply">
-                Apply for This Policy
+              <button (click)="applyInsurance()" class="btn btn-primary w-full mt-8 btn-lg">
+                Apply for Policy
               </button>
             </div>
           }
         </div>
       }
 
-     @if (activeTab() === 'claim') {
-  <div class="content-card">
-    <form (ngSubmit)="submitClaim()" class="claim-form">
-      <h3>Claim Insurance</h3>
+      @if (activeTab() === 'claim') {
+        <div class="card p-8">
+          <form (ngSubmit)="submitClaim()" class="form-grid">
+            <h3 class="text-lg font-bold mb-4">Submit New Claim</h3>
 
-      <div class="form-row">
+            <div class="grid-2">
+              <div class="field">
+                <label>Select Policy</label>
+                <select class="select" [ngModel]="selectedPolicyId()" (ngModelChange)="selectedPolicyId.set($event)" name="policyId" required>
+                  <option value="">Select Policy</option>
+                  @for (policy of policies(); track policy.id) {
+                    <option [value]="policy.id">Policy #{{ policy.id }} - Crop {{ policy.cropId }}</option>
+                  }
+                </select>
+              </div>
+              <div class="field">
+                <label>Insurance Company</label>
+                <input class="input" type="text" [(ngModel)]="claimData.insuranceCompany" name="insuranceCompany" required />
+              </div>
+            </div>
 
-        <div class="form-group">
-          <label>Policy ID *</label>
-          <select
-  [ngModel]="selectedPolicyId()"
-  (ngModelChange)="selectedPolicyId.set($event)"
-  name="policyId"
-  required
->
+            <div class="grid-2">
+              <div class="field">
+                <label>Claim Amount</label>
+                <input class="input" type="number" [(ngModel)]="claimData.claimAmount" name="claimAmount" required />
+              </div>
+              <div class="field">
+                <label>Cause of Loss</label>
+                <select class="select" [(ngModel)]="claimData.causeOfLoss" name="causeOfLoss" required>
+                  <option value="">Select Cause</option>
+                  <option value="Flood">Flood</option>
+                  <option value="Drought">Drought</option>
+                  <option value="Pest">Pest Attack</option>
+                  <option value="Disease">Disease</option>
+                  <option value="Cyclone">Cyclone</option>
+                </select>
+              </div>
+            </div>
 
-  <option value="">Select Policy</option>
+            <div class="field">
+              <label>Date of Loss</label>
+              <input class="input" type="date" [(ngModel)]="claimData.dateOfLoss" name="dateOfLoss" required />
+            </div>
 
-  @for (policy of policies(); track policy.id) {
-
-    <option [value]="policy.id">
-      Policy {{ policy.id }} - Crop {{ policy.cropId }}
-    </option>
-
-  }
-
-</select>
+            <div class="form-actions pt-4">
+              <button type="submit" class="btn btn-primary" [disabled]="loading()">
+                @if (loading()) { Submitting... } @else { Submit Claim Request }
+              </button>
+            </div>
+          </form>
         </div>
-
-        <div class="form-group">
-          <label>Insurance Company *</label>
-          <input type="text"
-                 [(ngModel)]="claimData.insuranceCompany"
-                 name="insuranceCompany"
-                 required />
-        </div>
-
-      </div>
-
-      <div class="form-row">
-
-        <div class="form-group">
-          <label>Claim Amount *</label>
-          <input type="number"
-                 [(ngModel)]="claimData.claimAmount"
-                 name="claimAmount"
-                 required />
-        </div>
-
-        <div class="form-group">
-          <label>Cause of Loss *</label>
-          <select [(ngModel)]="claimData.causeOfLoss" name="causeOfLoss" required>
-            <option value="">Select Cause</option>
-            <option value="Flood">Flood</option>
-            <option value="Drought">Drought</option>
-            <option value="Pest">Pest Attack</option>
-            <option value="Disease">Disease</option>
-            <option value="Cyclone">Cyclone</option>
-          </select>
-        </div>
-
-      </div>
-
-      <div class="form-group">
-        <label>Date of Loss *</label>
-        <input type="date"
-               [(ngModel)]="claimData.dateOfLoss"
-               name="dateOfLoss"
-               required />
-      </div>
-
-      <button type="submit" class="btn btn-primary" [disabled]="loading()">
-        @if (loading()) {
-          <span class="spinner"></span> Submitting...
-        } @else {
-          Submit Claim
-        }
-      </button>
-
-    </form>
-  </div>
-}
+      }
+    </div>
   `,
   styles: [`
-    .insurance-container {
-      animation: fadeIn 0.5s ease-out;
-    }
+    .content-header { margin-bottom: 2rem; }
+    .page-title { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.025em; }
+    .text-muted { color: var(--muted-foreground); }
 
-    .header {
-      margin-bottom: 2rem;
-    }
-
-    .header h1 {
-      color: #fff;
-      font-size: 2rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .header p {
-      color: #94a3b8;
-    }
-
-    .tabs {
+    .tab-group {
       display: flex;
-      gap: 1rem;
-      margin-bottom: 2rem;
+      padding: 0.25rem;
+      gap: 0.25rem;
+      margin-bottom: 2.5rem;
+      background-color: var(--muted);
+      border-radius: var(--radius-md);
     }
 
-    .tab-btn {
-      padding: 1rem 2rem;
-      background: rgba(15, 23, 42, 0.5);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      border-radius: 12px;
-      color: #cbd5e1;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .tab-btn:hover {
-      background: rgba(16, 185, 129, 0.1);
-      color: #10b981;
-      border-color: #10b981;
-    }
-
-    .tab-btn.active {
-      background: linear-gradient(135deg, #10b981, #059669);
-      color: white;
-      border-color: transparent;
-      box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
-    }
-
-    .alert {
-      padding: 1rem;
-      border-radius: 12px;
-      margin-bottom: 1.5rem;
-      animation: slideIn 0.3s ease-out;
-    }
-
-    .alert-success {
-      background: rgba(16, 185, 129, 0.1);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      color: #6ee7b7;
-    }
-
-    .alert-error {
-      background: rgba(239, 68, 68, 0.1);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      color: #fca5a5;
-    }
-
-    .content-card {
-      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(52, 211, 153, 0.05));
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      border-radius: 20px;
-      padding: 2rem;
-    }
-
-    h3 {
-      color: #10b981;
-      font-size: 1.5rem;
-      margin-bottom: 1.5rem;
-    }
-
-    h4 {
-      color: #34d399;
-      font-size: 1.125rem;
-      margin-bottom: 1rem;
-    }
-
-    .form-section {
-      margin-bottom: 2rem;
-      padding-bottom: 2rem;
-      border-bottom: 1px solid rgba(16, 185, 129, 0.2);
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .form-group {
-      margin-bottom: 1rem;
-    }
-
-    .form-group label {
-      display: block;
-      color: #10b981;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-    }
-
-    .form-group input,
-    .form-group select {
-      width: 100%;
-      padding: 1rem;
-      background: rgba(15, 23, 42, 0.5);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      border-radius: 12px;
-      color: white;
-      font-size: 1rem;
-      transition: all 0.3s ease;
-    }
-
-    .form-group input:focus,
-    .form-group select:focus {
-      outline: none;
-      border-color: #10b981;
-      box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
-    }
-
-    .helper-text {
-      color: #94a3b8;
-      font-size: 0.875rem;
-      margin-top: 0.5rem;
-    }
-
-    .form-actions {
-      display: flex;
-      gap: 1rem;
-      margin-top: 2rem;
-    }
-
-    .btn {
-      padding: 1rem 2rem;
+    .tab-group button {
+      flex: 1;
+      padding: 0.5rem;
       border: none;
-      border-radius: 12px;
-      font-weight: 600;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #10b981, #059669);
-      color: white;
-      box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
-      flex: 1;
-    }
-
-    .btn-primary:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 30px rgba(16, 185, 129, 0.6);
-    }
-
-    .btn-secondary {
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
-      border: 2px solid #10b981;
-      flex: 1;
-    }
-
-    .btn-secondary:hover {
-      background: rgba(16, 185, 129, 0.2);
-    }
-
-    .btn-primary:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-
-    .btn-apply {
-      width: 100%;
-      margin-top: 1.5rem;
-    }
-
-    .spinner {
-      width: 20px;
-      height: 20px;
-      border: 3px solid rgba(255, 255, 255, 0.3);
-      border-top-color: white;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-
-    .premium-result {
-      margin-top: 2rem;
-      padding-top: 2rem;
-      border-top: 2px solid rgba(16, 185, 129, 0.3);
-    }
-
-    .result-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .result-item {
-      padding: 1rem;
-      background: rgba(15, 23, 42, 0.5);
-      border-radius: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .result-item.highlight {
-      background: rgba(16, 185, 129, 0.2);
-      border: 2px solid #10b981;
-    }
-
-    .result-item .label {
-      color: #94a3b8;
+      background: transparent;
       font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--muted-foreground);
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      transition: all var(--transition-fast);
     }
 
-    .result-item .value {
-      color: #fff;
-      font-weight: 600;
-      font-size: 1.125rem;
+    .tab-group button.active {
+      background-color: var(--background);
+      color: var(--foreground);
+      box-shadow: var(--shadow-sm);
     }
 
-    .result-item .value.price {
-      color: #10b981;
-      font-size: 1.5rem;
-    }
+    .form-grid { display: flex; flex-direction: column; gap: 1.5rem; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .field { display: flex; flex-direction: column; gap: 0.5rem; }
+    .field label { font-size: 0.875rem; font-weight: 500; }
 
-    .premium-info {
-      background: rgba(52, 211, 153, 0.1);
-      border-left: 3px solid #10b981;
-      padding: 1.5rem;
-      border-radius: 12px;
-      margin-bottom: 1.5rem;
-    }
+    .highlight-card { border-color: var(--foreground); background-color: var(--muted); }
+    .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    .summary-item { display: flex; flex-direction: column; gap: 0.5rem; }
+    .summary-item .label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: var(--muted-foreground); }
+    .summary-item .value { font-size: 1.5rem; font-weight: 700; }
 
-    .premium-info h4 {
-      color: #10b981;
-      font-size: 1rem;
-      margin-bottom: 0.75rem;
-    }
+    .alert { padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1.5rem; font-size: 0.875rem; font-weight: 500; }
+    .alert-success { background-color: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
 
-    .premium-info ul {
-      list-style: none;
-      padding: 0;
-      margin-bottom: 1rem;
-    }
+    .p-8 { padding: 2rem; }
+    .pt-4 { padding-top: 1rem; }
+    .mt-4 { margin-top: 1rem; }
+    .mt-6 { margin-top: 1.5rem; }
+    .mt-8 { margin-top: 2rem; }
+    .mb-4 { margin-bottom: 1rem; }
+    .mb-6 { margin-bottom: 1.5rem; }
+    .w-full { width: 100%; }
+    .text-sm { font-size: 0.875rem; }
+    .text-lg { font-size: 1.125rem; }
+    .font-bold { font-weight: 700; }
+    .italic { font-style: italic; }
+    .btn-lg { padding: 0.75rem 1.5rem; font-size: 1rem; }
 
-    .premium-info li {
-      color: #cbd5e1;
-      padding: 0.5rem 0;
-      padding-left: 1.5rem;
-      position: relative;
-    }
+    .info-box { padding: 1rem; background-color: var(--background); border-radius: var(--radius-sm); border-left: 4px solid var(--primary); }
 
-    .premium-info li::before {
-      content: '✓';
-      position: absolute;
-      left: 0;
-      color: #10b981;
-      font-weight: bold;
-    }
-
-    .premium-info p {
-      color: #94a3b8;
-      font-style: italic;
-      margin: 0;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateX(-20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
+    @media (max-width: 768px) {
+      .grid-2, .summary-grid { grid-template-columns: 1fr; }
     }
   `]
 })
