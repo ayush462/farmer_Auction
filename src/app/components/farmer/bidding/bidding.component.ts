@@ -576,7 +576,7 @@ const end = new Date(auction.endTime + "Z").getTime();
       await this.apiService.getUserById(winner.bidderId);
 
     // ADD THIS
-    this.farmerEarnings += winner.bidAmount;
+    this.farmerEarnings += Number(winner?.bidAmount || 0);
 
   }
 
