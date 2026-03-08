@@ -465,10 +465,12 @@ auctionTimers:any = {};
 async loadDashboard(){
 
  const bidderId = Number(this.authService.currentUser()?.id);
+ 
 
  if(!bidderId) return;
 
  const stats = await this.apiService.getBidderDashboard(bidderId);
+ console.log("BIDDER DASHBOARD RESPONSE:", stats);
 
  if(stats){
    this.dashboardStats.set(stats);
