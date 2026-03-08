@@ -400,6 +400,7 @@ export class BiddingComponent implements OnInit {
   marketplace = signal<any[]>([]);
   auctionTimers:any = {};
   dashboard = signal<any>(null);
+  farmerEarnings = 0;
 
  sellData: any = {
   cropType: '',
@@ -505,6 +506,7 @@ startTimer(crop:any,endTime:number){
   async loadMarketplace(){
 
   this.activeTab.set('marketplace');
+   this.farmerEarnings = 0;  
 
   const data = await this.apiService.getMarketplace();
 
@@ -561,23 +563,32 @@ const end = new Date(auction.endTime + "Z").getTime();
     // AUCTION COMPLETED
     //--------------------------------
 
-    else{
+   else{
 
-      crop.auctionStatus = "COMPLETED";
-      crop.timeLeft = "Auction Completed";
+  crop.auctionStatus = "COMPLETED";
+  crop.timeLeft = "Auction Completed";
 
-      const winner = await this.apiService.getAuctionWinner(crop.id);
+  const winner = await this.apiService.getAuctionWinner(crop.id);
 
-      if(winner){
+  if(winner){
 
-        crop.winnerName =
-          await this.apiService.getUserById(winner.bidderId);
+    crop.winnerName =
+      await this.apiService.getUserById(winner.bidderId);
 
-      }
+    // ADD THIS
+    this.farmerEarnings += winner.bidAmount;
+
+  }
+
+
 
     }
 
   }
+  this.dashboard.update((d:any)=>({
+  ...d,
+  totalEarnings: this.farmerEarnings
+}));
 
   this.marketplace.set(data);
 
