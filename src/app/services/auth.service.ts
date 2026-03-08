@@ -64,7 +64,7 @@ export class AuthService {
     return { success: false, message: 'Network error. Please try again.' };
   }
 }
- async register(data: any): Promise<{ success: boolean; message?: string }> {
+async register(data: any): Promise<{ success: boolean; message?: string }> {
   try {
     const response = await fetch('/api/auth/register', {
       method: 'POST',
@@ -74,11 +74,10 @@ export class AuthService {
       body: JSON.stringify(data)
     });
 
-    let result = null;
+    const text = await response.text();
+    console.log("REGISTER RESPONSE:", text);
 
-    try {
-      result = await response.json();
-    } catch {}
+    const result = text ? JSON.parse(text) : null;
 
     if (!response.ok) {
       return { success: false, message: result?.message || 'Registration failed' };
