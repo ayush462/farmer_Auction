@@ -116,36 +116,86 @@ import { AuthService } from '../../../services/auth.service';
       }
 
       @if (activeTab() === 'marketplace') {
-        <div class="grid-3">
-          @for (item of marketplace(); track item.id) {
-            <div class="card crop-card">
-              <div class="crop-header">
-                <h3>{{ item.cropName }}</h3>
-                <span class="badge-soft">{{ item.cropType }}</span>
-              </div>
-              <div class="crop-body">
-                <div class="price-box">
-                  <span class="price-label">Current Bid</span>
-                  <span class="price-value">₹{{ item.currentBid }}</span>
-                </div>
 
-                @if (item.auctionStatus === 'LIVE') {
-                  <div class="auction-live-tag">
-                    <span class="dot pulse"></span> Live: {{ item.timeLeft }}
-                  </div>
-                }
+<div class="marketplace-grid">
 
-                <div class="detail-row text-sm mt-4">
-                  <span>Quantity</span>
-                  <strong>{{ item.quantity }} Q</strong>
-                </div>
-              </div>
-            </div>
-          } @empty {
-            <div class="empty-state">No active auctions found.</div>
-          }
-        </div>
-      }
+@for (crop of marketplace(); track crop.id) {
+
+<div class="crop-item card">
+
+<div class="crop-header">
+
+<div>
+<h3 class="crop-name">{{ crop.cropName }}</h3>
+<span class="crop-type-badge">{{ crop.cropType }}</span>
+</div>
+
+<div class="auction-status" [ngClass]="crop.auctionStatus?.toLowerCase()">
+
+@if (crop.auctionStatus === 'LIVE') {
+
+<span class="dot pulse"></span>
+Live: {{ crop.timeLeft }}
+
+}
+
+@else if (crop.auctionStatus === 'COMPLETED') {
+
+<span class="app-icon text-xs">check_circle</span>
+Ended
+
+}
+
+@else {
+
+<span class="app-icon text-xs">schedule</span>
+Upcoming
+
+}
+
+</div>
+
+</div>
+
+<div class="crop-body">
+
+<div class="price-section">
+
+<div class="price-box">
+<span class="price-label">Current Bid</span>
+<span class="price-value">₹{{ crop.currentBid }}</span>
+</div>
+
+<div class="price-box">
+<span class="price-label">Base Price</span>
+<span class="price-value">₹{{ crop.basePrice }}</span>
+</div>
+
+</div>
+
+<div class="detail-row">
+<span>Quantity</span>
+<strong>{{ crop.quantity }} Quintals</strong>
+</div>
+
+@if (crop.auctionStatus === 'COMPLETED' && crop.winnerName) {
+
+<div class="winner-announcement">
+<span class="app-icon">emoji_events</span>
+Winner: <strong>{{ crop.winnerName }}</strong>
+</div>
+
+}
+
+</div>
+
+</div>
+
+}
+
+</div>
+
+}
     </div>
   `,
   styles: [`
@@ -235,6 +285,110 @@ import { AuthService } from '../../../services/auth.service';
     @media (max-width: 768px) {
       .grid-2, .grid-3, .stats-row { grid-template-columns: 1fr; }
     }
+      .marketplace-grid{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(350px,1fr));
+gap:1.5rem;
+}
+
+.crop-item{
+display:flex;
+flex-direction:column;
+overflow:hidden;
+}
+
+.crop-header{
+padding:1.25rem;
+border-bottom:1px solid var(--border);
+display:flex;
+justify-content:space-between;
+align-items:flex-start;
+}
+
+.crop-name{
+font-size:1.125rem;
+font-weight:700;
+}
+
+.crop-type-badge{
+font-size:0.7rem;
+font-weight:600;
+color:var(--muted-foreground);
+text-transform:uppercase;
+}
+
+.crop-body{
+padding:1.5rem;
+display:flex;
+flex-direction:column;
+gap:1rem;
+}
+
+.price-section{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:1rem;
+}
+
+.price-box{
+display:flex;
+flex-direction:column;
+}
+
+.price-label{
+font-size:0.7rem;
+font-weight:600;
+color:var(--muted-foreground);
+text-transform:uppercase;
+}
+
+.price-value{
+font-size:1.3rem;
+font-weight:700;
+}
+
+.auction-status{
+display:flex;
+align-items:center;
+gap:0.4rem;
+font-size:0.75rem;
+font-weight:600;
+padding:0.25rem 0.5rem;
+border-radius:999px;
+background:var(--muted);
+}
+
+.auction-status.live{
+background:#f0fdf4;
+color:#16a34a;
+}
+
+.dot{
+width:6px;
+height:6px;
+border-radius:999px;
+background:currentColor;
+}
+
+.pulse{
+animation:pulse 2s infinite;
+}
+
+@keyframes pulse{
+0%{opacity:1}
+50%{opacity:.4}
+100%{opacity:1}
+}
+
+.winner-announcement{
+background:#fff9db;
+padding:.75rem;
+border-radius:var(--radius-md);
+display:flex;
+gap:.5rem;
+align-items:center;
+font-size:.875rem;
+}
   `]
 })
 export class BiddingComponent implements OnInit {

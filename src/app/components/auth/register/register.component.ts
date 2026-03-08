@@ -90,30 +90,109 @@ import { ToastService } from '../../../services/toast.service';
               </div>
 
               <!-- Role Specific -->
-              @if (userType() === 'farmer') {
-                <div class="form-section highlight-section">
-                  <h3 class="section-title">Land Information</h3>
-                  <div class="grid-2">
-                    <div class="field">
-                      <label>Land Area (Hectares)</label>
-                      <input class="input" type="number" [(ngModel)]="formData.landArea" name="landArea" required />
-                    </div>
-                    <div class="field">
-                      <label>Plot Number</label>
-                      <input class="input" type="text" [(ngModel)]="formData.plotNo" name="plotNo" required />
-                    </div>
-                  </div>
-                </div>
-              } @else {
-                <div class="form-section highlight-section">
-                  <h3 class="section-title">Business Information</h3>
-                  <div class="field">
-                    <label>Trading License Number</label>
-                    <input class="input" type="text" [(ngModel)]="formData.tradingLicenseNo" name="tradingNo" required />
-                  </div>
-                </div>
-              }
+             @if (userType() === 'farmer') {
+  <div class="form-section highlight-section">
+    <h3 class="section-title">Land Information</h3>
 
+    <div class="grid-2">
+      <div class="field">
+        <label>Land Area (Hectares)</label>
+        <input class="input" type="number" [(ngModel)]="formData.landArea" name="landArea" required />
+      </div>
+
+      <div class="field">
+        <label>Plot Number</label>
+        <input class="input" type="text" [(ngModel)]="formData.plotNo" name="plotNo" required />
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Land Address</label>
+      <input class="input" type="text" [(ngModel)]="formData.landAddress" name="landAddress" required />
+    </div>
+
+    <div class="field">
+      <label>Land Pincode</label>
+      <input class="input" type="text" [(ngModel)]="formData.landPincode" name="landPincode" required />
+    </div>
+
+  </div>
+
+  <div class="form-section">
+    <h3 class="section-title">Bank Details</h3>
+
+    <div class="grid-2">
+      <div class="field">
+        <label>Account Number</label>
+        <input class="input" type="text" [(ngModel)]="formData.accountNo" name="accountNo" required />
+      </div>
+
+      <div class="field">
+        <label>IFSC Code</label>
+        <input class="input" type="text" [(ngModel)]="formData.ifscCode" name="ifscCode" required />
+      </div>
+    </div>
+
+    <div class="field">
+      <label>PAN Number</label>
+      <input class="input" type="text" [(ngModel)]="formData.panNo" name="panNo" required />
+    </div>
+  </div>
+}@else {
+  <div class="form-section highlight-section">
+    <h3 class="section-title">Business Information</h3>
+
+    <div class="field">
+      <label>Trading License Number</label>
+      <input
+        class="input"
+        type="text"
+        [(ngModel)]="formData.tradingLicenseNo"
+        name="tradingLicenseNo"
+        required
+      />
+    </div>
+
+    <div class="field">
+      <label>PAN Number</label>
+      <input
+        class="input"
+        type="text"
+        [(ngModel)]="formData.panNo"
+        name="panNo"
+        required
+      />
+    </div>
+  </div>
+
+  <div class="form-section">
+    <h3 class="section-title">Bank Details</h3>
+
+    <div class="grid-2">
+      <div class="field">
+        <label>Account Number</label>
+        <input
+          class="input"
+          type="text"
+          [(ngModel)]="formData.accountNo"
+          name="accountNo"
+          required
+        />
+      </div>
+
+      <div class="field">
+        <label>IFSC Code</label>
+        <input
+          class="input"
+          type="text"
+          [(ngModel)]="formData.ifscCode"
+          name="ifscCode"
+          required
+        />
+      </div>
+    </div>
+  </div>
+}
               <!-- Security -->
               <div class="form-section">
                 <h3 class="section-title">Account Security</h3>

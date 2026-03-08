@@ -156,11 +156,23 @@ async getFarmerDashboard(farmerId:number):Promise<any>{
 }
 async getAdminDashboard(): Promise<any> {
   try {
+
     const response = await this.fetchWithAuth('/admin/dashboard');
-    return await response.json();
+
+    const text = await response.text();
+
+    console.log("Admin dashboard raw:", text);
+
+    if(!text) return null;
+
+    return JSON.parse(text);
+
   } catch (error) {
+
     console.error('Error fetching admin dashboard:', error);
+
     return null;
+
   }
 }
 async getBidderDashboard(bidderId:number):Promise<any>{
