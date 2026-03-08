@@ -21,7 +21,7 @@ export class AuthService {
 
   async login(email: string, password: string): Promise<{ success: boolean; message?: string }> {
   try {
-    const response = await fetch('http://15.207.222.160:8080/api/auth/login', {
+    const response = await fetch('/api/auth/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -66,7 +66,7 @@ export class AuthService {
 }
  async register(data: any): Promise<{ success: boolean; message?: string }> {
   try {
-    const response = await fetch('http://15.207.222.160:8080/api/auth/register', {
+    const response = await fetch('/api/auth/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

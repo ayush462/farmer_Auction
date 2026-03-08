@@ -2,6 +2,13 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist/demo/browser",
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/api/(.*)",
+      "destination": "http://15.207.222.160:8080/api/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ]
 }
