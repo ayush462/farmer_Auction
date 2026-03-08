@@ -1,6 +1,6 @@
 {
   "buildCommand": "npm run build",
-  "outputDirectory": "dist/demo",
+  "outputDirectory": "dist/demo/browser",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ]
