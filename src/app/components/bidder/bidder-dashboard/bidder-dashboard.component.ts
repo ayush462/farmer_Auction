@@ -54,10 +54,10 @@ import { ToastService } from '../../../services/toast.service';
             <span class="stat-label">Auctions Won</span>
             <span class="stat-value">{{ dashboardStats().auctionsWon }}</span>
           </div>
-          <div class="stat-card card">
-            <span class="stat-label">Total Spent</span>
-            <span class="stat-value">₹{{ dashboardStats().totalSpent }}</span>
-          </div>
+          // <div class="stat-card card">
+          //   <span class="stat-label">Total Spent</span>
+          //   <span class="stat-value">₹{{ dashboardStats().totalSpent }}</span>
+          // </div>
           <div class="stat-card card">
             <span class="stat-label">Total Bids</span>
             <span class="stat-value">{{ dashboardStats().totalBids }}</span>
