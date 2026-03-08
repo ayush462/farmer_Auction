@@ -793,7 +793,12 @@ async startAuction(bid:any){
    bid.auctionLive = true;
    bid.timeLeft = "Starting...";
 
-   const endTime = new Date(result.auction.endTime).getTime();
+  const startTime = new Date(result.auction.startTime + "Z").getTime();
+const endTime = new Date(result.auction.endTime + "Z").getTime();
+
+console.log("START TIME PARSED:", startTime);
+console.log("END TIME PARSED:", endTime);
+console.log("NOW:", Date.now());
 
    console.log("END TIME PARSED:", endTime);
    console.log("NOW:", Date.now());
